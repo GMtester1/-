@@ -2,19 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta id="viewportMeta" name="viewport" content="width=1280, initial-scale=0.32, minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes" />
-  <script>
-    (function() {
-      try {
-        var vp = document.getElementById("viewportMeta");
-        if (vp) {
-          var screenW = Math.min(window.screen.width, window.screen.height) || 390;
-          var scale = Math.min(1, screenW / 1280).toFixed(3);
-          vp.setAttribute("content", "width=1280, initial-scale=" + scale + ", minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes");
-        }
-      } catch (_) {}
-    })();
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>K-water 전력거래소 출력제어 대응 대시보드</title>
   <style>
     :root {
@@ -669,7 +657,8 @@
 
     .table-wrap {
       width: 100%;
-      overflow-x: hidden;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
@@ -972,15 +961,13 @@
       .title-area h1 { font-size: clamp(0.95rem, 4.2vw, 1.18rem); white-space: nowrap; }
       .subtitle { font-size: 0.78rem; line-height: 1.45; }
       .right-panel { width: auto; gap: 8px; }
-      .refresh-btn { width: auto; padding: 9px 14px; font-size: 0.84rem; }
       .logout-btn { padding: 10px 12px; font-size: 0.78rem; }
 
       .kpx-banner { padding: 14px; gap: 12px; }
       .kpx-left { min-width: 100%; }
       .kpx-post-title { font-size: 0.95rem; }
-      .kpx-schedule-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
-      .kpx-chip { padding: 6px 9px; font-size: 0.8rem; justify-content: space-between; }
-      .kpx-chip.highlight-date .kpx-chip-val,
+      .kpx-schedule-chips { display: flex; gap: 6px; width: 100%; }
+      .kpx-chip { padding: 6px 9px; font-size: 0.8rem; }
       .kpx-chip.highlight-time .kpx-chip-val { font-size: 0.84rem; }
       .kpx-right { align-items: flex-start; width: 100%; border-top: 1px solid var(--border); padding-top: 10px; }
       .kpx-meta { text-align: left; font-size: 0.74rem; }
@@ -993,34 +980,29 @@
       .summary-val { font-size: 1.08rem; }
       .summary-sub { font-size: 0.7rem; }
 
-      .toolbar { padding: 10px 12px; gap: 10px; }
-      .toolbar-left, .toolbar-right { width: 100%; gap: 8px; }
-      .tab-group { width: 100%; display: flex; }
-      .tab-btn { flex: 1; text-align: center; padding: 8px 6px; font-size: 0.8rem; }
-      .region-filter-group { width: 100%; justify-content: space-between; padding: 8px 10px; gap: 6px; }
-      .region-check-item { padding: 4px 6px; gap: 5px; }
-      .region-check-box { width: 19px; height: 19px; }
-      .region-check-label-text { font-size: 0.82rem; }
-      .search-input { flex: 1; width: auto; font-size: 16px; padding: 7px 10px; }
+      .toolbar { padding: 8px 10px; gap: 8px; justify-content: space-between; align-items: center; }
+      .region-filter-group { flex: 1; padding: 6px 8px; gap: 4px; justify-content: space-between; min-width: 200px; }
+      .region-check-item { padding: 3px 5px; gap: 4px; }
+      .region-check-box { width: 17px; height: 17px; }
+      .region-check-label-text { font-size: 0.8rem; }
+      .refresh-btn { width: auto; padding: 8px 12px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; }
 
       .grid-container { grid-template-columns: 1fr; gap: 12px; }
       .group-header { padding: 10px 12px; }
       .group-title { font-size: 0.95rem; }
       .group-stats { font-size: 0.73rem; gap: 8px; }
 
-      th, td { padding: 7px 5px; font-size: 0.76rem; }
-      th { font-size: 0.7rem; letter-spacing: -0.02em; }
+      table { min-width: 480px; }
+      th, td { padding: 8px 6px; font-size: 0.78rem; }
+      th { font-size: 0.72rem; letter-spacing: -0.02em; }
       .plant-name-wrap { gap: 4px; }
-      .plant-name { font-size: 0.78rem; }
-      .pg-code { font-size: 0.64rem; padding: 1px 4px; }
+      .plant-name { font-size: 0.82rem; }
       .region-tag { font-size: 0.64rem; padding: 1px 4px; }
-      .meter-mw { font-size: 0.84rem; }
-      .meter-time { font-size: 0.72rem; }
-      .meter-meta { font-size: 0.64rem; }
-      .exceed-tag { font-size: 0.62rem; padding: 1px 4px; }
-      .limit-input { width: 58px; padding: 5px 4px; font-size: 16px; }
+      .meter-mw { font-size: 0.86rem; }
+      .meter-time { font-size: 0.76rem; }
+      .limit-input { width: 56px; padding: 5px 4px; font-size: 16px; }
       .ox-group { padding: 2px; gap: 2px; }
-      .ox-btn { width: 24px; height: 22px; font-size: 0.72rem; }
+      .ox-btn { width: 26px; height: 24px; font-size: 0.74rem; }
       .toast { left: 12px; right: 12px; bottom: 14px; text-align: center; font-size: 0.82rem; }
     }
   </style>
@@ -2019,19 +2001,6 @@
       renderSummaryBar();
       renderGrid();
     }
-
-    /**
-     * 모바일 기기에서도 PC 데스크탑(1280px) 레이아웃으로 열리도록 뷰포트 설정
-     */
-    function setupDesktopViewport() {
-      const vp = document.getElementById("viewportMeta");
-      if (!vp) return;
-      const screenW = Math.min(window.screen.width, window.screen.height) || 390;
-      let scale = Math.min(1, screenW / 1280).toFixed(3);
-      vp.setAttribute("content", `width=1280, initial-scale=${scale}, minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes`);
-    }
-
-    setupDesktopViewport();
 
     // 초기 인증 확인 및 KPX 출력제어 전망 3시간 주기 자동 감지 시작
     checkAuth();
