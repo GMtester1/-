@@ -1364,6 +1364,11 @@
     const STORAGE_KEY_AUTH = "curtailment_dashboard_auth_v1";
     const STORAGE_KEY_INPUTS = "curtailment_user_inputs_v1";
     const STORAGE_KEY_LAST_KPX_NO = "curtailment_last_kpx_list_no_v1";
+    const STORAGE_KEY_LOGIN_TIME = "curtailment_login_time_v1";
+    const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10분 뒤 자동 로그아웃 (600,000ms)
+
+    let autoLogoutTimer = null;
+    let isInitialCrawlTriggered = false;
 
     // 외부 웹(Vercel/GitHub Pages)/스마트폰 <-> 사내 24시간 PC 실시간 중계용 설정
     const SUPABASE_URL = "https://yihwudxvoplamekroprx.supabase.co";
@@ -1449,15 +1454,52 @@
       return result;
     }
 
+    function startAutoLogoutTimer() {
+      clearTimeout(autoLogoutTimer);
+      const loginTimeStr = localStorage.getItem(STORAGE_KEY_LOGIN_TIME);
+      const loginTime = loginTimeStr ? parseInt(loginTimeStr, 10) : Date.now();
+      const elapsed = Date.now() - loginTime;
+      const remaining = AUTO_LOGOUT_MS - elapsed;
+
+      if (remaining <= 0) {
+        handleLogout(true);
+        return;
+      }
+
+      autoLogoutTimer = setTimeout(() => {
+        handleLogout(true);
+      }, remaining);
+    }
+
     function checkAuth() {
       const saved = localStorage.getItem(STORAGE_KEY_AUTH);
       if (saved === EXPECTED_HASH) {
+        // 10분 세션 만료 여부 검사
+        const loginTimeStr = localStorage.getItem(STORAGE_KEY_LOGIN_TIME);
+        if (loginTimeStr) {
+          const loginTime = parseInt(loginTimeStr, 10);
+          if (Date.now() - loginTime >= AUTO_LOGOUT_MS) {
+            handleLogout(true);
+            return;
+          }
+        } else {
+          localStorage.setItem(STORAGE_KEY_LOGIN_TIME, Date.now().toString());
+        }
+
         document.getElementById("loginOverlay").style.display = "none";
         document.getElementById("appContent").style.display = "block";
+        startAutoLogoutTimer();
         renderAll();
         syncUserInputsFromCloud();
         checkKpxNoticeNow(false);
+
+        // 로그인 시 최초 계량데이터 새로고침 1회 자동 실행
+        if (!hasCrawledMeters && !isInitialCrawlTriggered) {
+          isInitialCrawlTriggered = true;
+          crawlMetersNow();
+        }
       } else {
+        clearTimeout(autoLogoutTimer);
         document.getElementById("loginOverlay").style.display = "flex";
         document.getElementById("appContent").style.display = "none";
       }
@@ -1470,6 +1512,9 @@
       const hash = sha256(id + ":" + pw);
       if (hash === EXPECTED_HASH) {
         localStorage.setItem(STORAGE_KEY_AUTH, hash);
+        localStorage.setItem(STORAGE_KEY_LOGIN_TIME, Date.now().toString());
+        isInitialCrawlTriggered = false;
+        hasCrawledMeters = false;
         document.getElementById("loginError").style.display = "none";
         checkAuth();
       } else {
@@ -1477,11 +1522,18 @@
       }
     }
 
-    function handleLogout() {
+    function handleLogout(isAuto = false) {
+      clearTimeout(autoLogoutTimer);
       localStorage.removeItem(STORAGE_KEY_AUTH);
+      localStorage.removeItem(STORAGE_KEY_LOGIN_TIME);
       document.getElementById("userId").value = "";
       document.getElementById("userPw").value = "";
+      isInitialCrawlTriggered = false;
+      hasCrawledMeters = false;
       checkAuth();
+      if (isAuto) {
+        showToast("보안을 위해 10분이 경과하여 자동 로그아웃되었습니다.");
+      }
     }
 
     const REGIONS = ["한강권역", "금·영·섬권역", "낙동강권역"];
@@ -2185,6 +2237,16 @@
         syncUserInputsFromCloud();
       }
     }, 4000);
+
+    // 10초 주기로 10분 자동 로그아웃 만료 여부 감지 (절전모드 복귀 등 대응)
+    setInterval(() => {
+      if (localStorage.getItem(STORAGE_KEY_AUTH) === EXPECTED_HASH) {
+        const loginTimeStr = localStorage.getItem(STORAGE_KEY_LOGIN_TIME);
+        if (loginTimeStr && Date.now() - parseInt(loginTimeStr, 10) >= AUTO_LOGOUT_MS) {
+          handleLogout(true);
+        }
+      }
+    }, 10000);
   </script>
 </body>
 </html>
