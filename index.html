@@ -1093,10 +1093,6 @@
         </h1>
       </div>
       <div class="right-panel">
-        <div class="timestamp-box">
-          <div class="timestamp-label">계량데이터 조회시각 (비저장)</div>
-          <div class="timestamp-value" id="meterCrawledAtText">미조회 (새로고침 클릭)</div>
-        </div>
         <button class="refresh-btn" id="refreshMeterBtn" onclick="crawlMetersNow()">
           <span id="refreshMeterIcon">↻</span>
           <span id="refreshMeterLabel">계량데이터 새로고침</span>
@@ -1167,67 +1163,43 @@
     <!-- 상단 요약 카드 바 -->
     <div class="summary-bar" id="summaryBar"></div>
 
-    <!-- 탭 전환 / 필터 / 검색 / 초기화 툴바 -->
+    <!-- 권역 선택 툴바 -->
     <div class="toolbar">
-      <div class="toolbar-left">
-        <div class="tab-group">
-          <button type="button" class="tab-btn active" id="tabRegionBtn" onclick="setViewMode('region')">
-            권역별 보기
-          </button>
-          <button type="button" class="tab-btn" id="tabAllBtn" onclick="setViewMode('all')">
-            전체 통합 보기
-          </button>
-        </div>
-
-        <div class="region-filter-group" id="regionFilterGroup">
-          <span class="region-filter-title">권역:</span>
-          <label class="region-check-item">
-            <input
-              type="checkbox"
-              class="region-check-box"
-              id="chk-한강권역"
-              value="한강권역"
-              checked
-              onchange="handleRegionCheckChange()"
-            />
-            <span class="region-check-label-text">한강</span>
-          </label>
-          <label class="region-check-item">
-            <input
-              type="checkbox"
-              class="region-check-box"
-              id="chk-금·영·섬권역"
-              value="금·영·섬권역"
-              checked
-              onchange="handleRegionCheckChange()"
-            />
-            <span class="region-check-label-text">금영섬</span>
-          </label>
-          <label class="region-check-item">
-            <input
-              type="checkbox"
-              class="region-check-box"
-              id="chk-낙동강권역"
-              value="낙동강권역"
-              checked
-              onchange="handleRegionCheckChange()"
-            />
-            <span class="region-check-label-text">낙동강</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="toolbar-right">
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="발전소명 또는 코드 검색..."
-          oninput="handleSearchInput(this.value)"
-        />
-        <button type="button" class="btn-sm" onclick="resetUserInputs()">
-          🗑️ 입력값 초기화
-        </button>
+      <div class="region-filter-group" id="regionFilterGroup">
+        <span class="region-filter-title">권역 선택:</span>
+        <label class="region-check-item">
+          <input
+            type="checkbox"
+            class="region-check-box"
+            id="chk-한강권역"
+            value="한강권역"
+            checked
+            onchange="handleRegionCheckChange()"
+          />
+          <span class="region-check-label-text">한강</span>
+        </label>
+        <label class="region-check-item">
+          <input
+            type="checkbox"
+            class="region-check-box"
+            id="chk-금·영·섬권역"
+            value="금·영·섬권역"
+            checked
+            onchange="handleRegionCheckChange()"
+          />
+          <span class="region-check-label-text">금영섬</span>
+        </label>
+        <label class="region-check-item">
+          <input
+            type="checkbox"
+            class="region-check-box"
+            id="chk-낙동강권역"
+            value="낙동강권역"
+            checked
+            onchange="handleRegionCheckChange()"
+          />
+          <span class="region-check-label-text">낙동강</span>
+        </label>
       </div>
     </div>
 
@@ -1475,10 +1447,8 @@
     let lastInputsUpdatedAt = 0;
     let pushInputsTimer = null;
 
-    // 화면 뷰/권역선택 상태
-    let currentViewMode = "region"; // 'region' | 'all'
-    let selectedRegions = new Set(["한강권역", "금·영·섬권역", "낙동강권역"]); // 디폴트: 모두 선택
-    let searchKeyword = "";
+    // 권역선택 상태 (디폴트: 모두 선택)
+    let selectedRegions = new Set(["한강권역", "금·영·섬권역", "낙동강권역"]);
 
     function loadUserInputs() {
       try {
@@ -1699,7 +1669,8 @@
         });
         hasCrawledMeters = true;
 
-        document.getElementById("meterCrawledAtText").textContent = data.meta.crawledAt;
+        const crawledAtEl = document.getElementById("meterCrawledAtText");
+        if (crawledAtEl) crawledAtEl.textContent = data.meta.crawledAt;
         renderAll();
         showToast(`실시간 계량데이터 크롤링 완료 (${data.meta.crawledAt})`);
       } catch (err) {
@@ -1872,13 +1843,6 @@
       }
     }
 
-    function setViewMode(mode) {
-      currentViewMode = mode;
-      document.getElementById("tabRegionBtn").classList.toggle("active", mode === "region");
-      document.getElementById("tabAllBtn").classList.toggle("active", mode === "all");
-      renderGrid();
-    }
-
     /**
      * 모바일/PC 권역별 선택 체크박스 변경 핸들러 (디폴트: 한강, 금영섬, 낙동강 모두 체크)
      */
@@ -1893,21 +1857,6 @@
       if (chkN && chkN.checked) selectedRegions.add("낙동강권역");
 
       renderAll();
-    }
-
-    function handleSearchInput(val) {
-      searchKeyword = val.trim().toLowerCase();
-      renderGrid();
-    }
-
-    function resetUserInputs() {
-      if (!confirm("직접 입력한 제어지시값(MW)과 정지가능여부(O/X)를 모두 초기화하시겠습니까?")) {
-        return;
-      }
-      userInputsById = {};
-      saveUserInputs(true);
-      renderAll();
-      showToast("직접입력값이 모두 초기화되었습니다.");
     }
 
     /**
@@ -1957,15 +1906,6 @@
           <div class="summary-sub">설비용량 합계: <strong>${fmtMw(totalCapMw, 2)} MW</strong></div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">현재 계량데이터 합계 (MW)</div>
-          <div class="summary-val" style="color: var(--accent);">
-            ${hasCrawledMeters ? `${fmtMw(totalMeterMw, 3)} MW` : "미조회"}
-          </div>
-          <div class="summary-sub">
-            ${hasCrawledMeters ? `정상 조회: ${validMeterCount} / ${activePlants.length}개소` : "[계량데이터 새로고침] 클릭 시 조회"}
-          </div>
-        </div>
-        <div class="summary-card">
           <div class="summary-label">제어지시값 입력 현황</div>
           <div class="summary-val">${limitEnteredCount}개소</div>
           <div class="summary-sub">지시값 합계: <strong>${fmtMw(totalLimitMw, 2)} MW</strong></div>
@@ -1992,19 +1932,7 @@
     }
 
     function filterPlants(list) {
-      return list.filter(p => {
-        // 1. 권역 체크 필터 (한강, 금영섬, 낙동강)
-        if (!selectedRegions.has(p.region)) return false;
-
-        // 2. 검색어 필터
-        if (searchKeyword) {
-          const hitName = p.name.toLowerCase().includes(searchKeyword);
-          const hitCode = p.pgCode.toLowerCase().includes(searchKeyword);
-          const hitRegion = p.region.toLowerCase().includes(searchKeyword);
-          if (!hitName && !hitCode && !hitRegion) return false;
-        }
-        return true;
-      });
+      return list.filter(p => selectedRegions.has(p.region));
     }
 
     function buildTableRowsHtml(plants, showRegionBadge) {
@@ -2089,7 +2017,6 @@
       const container = document.getElementById("gridContainer");
 
       if (selectedRegions.size === 0) {
-        container.classList.remove("single-view");
         container.innerHTML = `
           <div style="grid-column: 1 / -1; background: var(--card); border: 1px dashed var(--border); border-radius: 12px; padding: 48px 20px; text-align: center; color: var(--muted);">
             <div style="font-size: 2rem; margin-bottom: 8px;">🗺️</div>
@@ -2100,48 +2027,6 @@
         return;
       }
 
-      if (currentViewMode === "all") {
-        container.classList.add("single-view");
-        const filtered = filterPlants(PLANTS);
-        const capSum = filtered.reduce((acc, p) => acc + p.capacityMw, 0);
-        const meterSum = filtered.reduce((acc, p) => {
-          const m = meterDataById[p.id];
-          return acc + (m && m.meterMw ? m.meterMw : 0);
-        }, 0);
-
-        container.innerHTML = `
-          <div class="group-card">
-            <div class="group-header">
-              <span class="group-title">전체 출력제어 대상 발전소 통합 현황</span>
-              <div class="group-stats">
-                <span>표시: <strong>${filtered.length}개소</strong></span>
-                <span>설비용량 합계: <strong>${fmtMw(capSum, 2)} MW</strong></span>
-                ${hasCrawledMeters ? `<span>계량 합계: <strong>${fmtMw(meterSum, 3)} MW</strong></span>` : ""}
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>발전소명</th>
-                    <th class="num">설비용량</th>
-                    <th class="num">계량데이터</th>
-                    <th class="center">계량시간</th>
-                    <th class="num">제어지시값</th>
-                    <th class="center">정지가능여부</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${buildTableRowsHtml(filtered, true)}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      container.classList.remove("single-view");
       const activeRegions = REGIONS.filter(regionName => selectedRegions.has(regionName));
 
       container.innerHTML = activeRegions.map(regionName => {
