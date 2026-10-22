@@ -1424,12 +1424,12 @@
       label.textContent = "계량데이터 크롤링 중...";
 
       try {
-        // 1순위: 로컬 PC 서버(localhost:3010) 또는 Vercel API(/api/meters) 직접 호출
+        // 1순위: 로컬 PC 서버(localhost:3010) 또는 Vercel API(/api/refresh?type=meters) 직접 호출
         let data = null;
         try {
           const ctrl = new AbortController();
           const timer = setTimeout(() => ctrl.abort(), 9000);
-          const res = await fetch(getApiUrl(`/api/meters?t=${Date.now()}`), {
+          const res = await fetch(getApiUrl(`/api/refresh?type=meters&t=${Date.now()}`), {
             method: "GET",
             cache: "no-store",
             signal: ctrl.signal
@@ -1497,7 +1497,7 @@
         try {
           const ctrl = new AbortController();
           const timer = setTimeout(() => ctrl.abort(), 9000);
-          const res = await fetch(getApiUrl(`/api/kpx-notice?t=${Date.now()}`), {
+          const res = await fetch(getApiUrl(`/api/refresh?type=kpx&t=${Date.now()}`), {
             method: "GET",
             cache: "no-store",
             signal: ctrl.signal
