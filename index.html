@@ -982,11 +982,6 @@
           <span class="live-dot"></span>
           전력거래소 출력제어 대응 대시보드
         </h1>
-        <div class="subtitle">
-          대상 발전소: <strong>40개소</strong> &nbsp;|&nbsp;
-          단위 환산: <code>5분 데이터(Wh) × 12 / 10⁶ = MW</code> &nbsp;|&nbsp;
-          계량데이터는 저장하지 않으며 <strong>[새로고침]</strong> 클릭 시에만 크롤링합니다.
-        </div>
       </div>
       <div class="right-panel">
         <div class="timestamp-box">
@@ -1173,6 +1168,7 @@
     const KEY_METER_CMD = "CURTAILMENT_METER_CMD";
     const KEY_METER_RES = "CURTAILMENT_METER_RES";
     const KEY_KPX_DATA = "CURTAILMENT_KPX_DATA";
+    const KEY_USER_INPUTS = "CURTAILMENT_USER_INPUTS";
 
     // 순수 JS SHA-256 구현 (http, https, file:// 모든 환경 호환)
     function sha256(ascii) {
@@ -1255,6 +1251,7 @@
         document.getElementById("loginOverlay").style.display = "none";
         document.getElementById("appContent").style.display = "block";
         renderAll();
+        syncUserInputsFromCloud();
         checkKpxNoticeNow(false);
       } else {
         document.getElementById("loginOverlay").style.display = "flex";
@@ -1340,6 +1337,8 @@
 
     // 사용자 직접입력값 (제어지시값 MW, 정지가능여부 O/X)
     let userInputsById = loadUserInputs();
+    let lastInputsUpdatedAt = 0;
+    let pushInputsTimer = null;
 
     // 화면 뷰/필터 상태
     let currentViewMode = "region"; // 'region' | 'all'
@@ -1355,9 +1354,59 @@
       }
     }
 
-    function saveUserInputs() {
+    function saveUserInputs(immediateCloudPush = false) {
       try {
         localStorage.setItem(STORAGE_KEY_INPUTS, JSON.stringify(userInputsById));
+      } catch (_) {}
+
+      const nowTs = Date.now();
+      lastInputsUpdatedAt = nowTs;
+
+      clearTimeout(pushInputsTimer);
+      if (immediateCloudPush) {
+        pushUserInputsToCloud(nowTs);
+      } else {
+        pushInputsTimer = setTimeout(() => {
+          pushUserInputsToCloud(Date.now());
+        }, 400);
+      }
+    }
+
+    async function pushUserInputsToCloud(ts) {
+      try {
+        lastInputsUpdatedAt = Math.max(lastInputsUpdatedAt, ts);
+        await fetch(
+          `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=category`,
+          {
+            method: "POST",
+            headers: sbHeaders({ "Prefer": "resolution=merge-duplicates,return=minimal" }),
+            body: JSON.stringify([{
+              category: KEY_USER_INPUTS,
+              content: JSON.stringify(userInputsById),
+              updated_at: ts
+            }])
+          }
+        );
+      } catch (_) {}
+    }
+
+    async function syncUserInputsFromCloud() {
+      try {
+        // 사용자가 현재 입력창에 타이핑 중인 경우에는 포커스 방해 방지
+        if (document.activeElement && document.activeElement.classList.contains("limit-input")) {
+          return;
+        }
+        const cloud = await fetchCloudKey(KEY_USER_INPUTS);
+        if (!cloud || !cloud.payload || typeof cloud.payload !== "object") return;
+
+        if (cloud.updatedAt > lastInputsUpdatedAt) {
+          lastInputsUpdatedAt = cloud.updatedAt;
+          userInputsById = cloud.payload;
+          try {
+            localStorage.setItem(STORAGE_KEY_INPUTS, JSON.stringify(userInputsById));
+          } catch (_) {}
+          renderAll();
+        }
       } catch (_) {}
     }
 
@@ -1663,7 +1712,7 @@
     function handleStoppableSelect(plantId, choice) {
       const inp = getPlantInput(plantId);
       inp.stoppable = inp.stoppable === choice ? "" : choice;
-      saveUserInputs();
+      saveUserInputs(true);
       renderAll();
     }
 
@@ -1723,7 +1772,7 @@
         return;
       }
       userInputsById = {};
-      saveUserInputs();
+      saveUserInputs(true);
       renderAll();
       showToast("직접입력값이 모두 초기화되었습니다.");
     }
@@ -2001,6 +2050,13 @@
         checkKpxNoticeNow(false);
       }
     }, KPX_POLL_INTERVAL_MS);
+
+    // 다른 PC/스마트폰에서 변경한 제어지시값·정지가능여부(O/X) 4초 주기 실시간 동기화
+    setInterval(() => {
+      if (localStorage.getItem(STORAGE_KEY_AUTH) === EXPECTED_HASH) {
+        syncUserInputsFromCloud();
+      }
+    }, 4000);
   </script>
 </body>
 </html>
