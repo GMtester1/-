@@ -59,11 +59,11 @@
 
     .login-card {
       width: 100%;
-      max-width: 390px;
+      max-width: 440px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 32px 26px;
+      padding: 32px 24px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
     }
 
@@ -73,6 +73,8 @@
       text-align: center;
       margin-bottom: 6px;
       color: var(--text);
+      white-space: nowrap;
+      letter-spacing: -0.02em;
     }
 
     .login-desc {
@@ -174,6 +176,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      white-space: nowrap;
     }
 
     .live-dot {
@@ -516,34 +519,79 @@
       color: #0f172a;
     }
 
-    .filter-group {
+    .region-filter-group {
       display: inline-flex;
-      gap: 6px;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
-    }
-
-    .filter-btn {
       background: #0f172a;
-      color: var(--muted);
       border: 1px solid var(--border);
-      padding: 7px 12px;
-      border-radius: 8px;
-      font-size: 0.81rem;
-      font-weight: 600;
+      border-radius: 9px;
+      padding: 6px 14px;
+    }
+
+    .region-filter-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .region-check-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       cursor: pointer;
-      transition: all 0.15s;
+      user-select: none;
+      padding: 3px 6px;
+      border-radius: 6px;
+      transition: background 0.15s;
     }
 
-    .filter-btn.active {
+    .region-check-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .region-check-box {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: #1e293b;
+      cursor: pointer;
+      display: inline-grid;
+      place-content: center;
+      margin: 0;
+      transition: all 0.15s ease;
+    }
+
+    .region-check-box::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+      transform: scale(0);
+      transform-origin: center;
+      transition: 0.12s transform ease-in-out;
+      background-color: #0f172a;
+    }
+
+    .region-check-box:checked {
+      background-color: var(--accent);
       border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(56, 189, 248, 0.12);
     }
 
-    .filter-btn.exceed-filter.active {
-      border-color: var(--err-border);
-      color: #fca5a5;
-      background: var(--err-bg);
+    .region-check-box:checked::before {
+      transform: scale(1);
+    }
+
+    .region-check-label-text {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
     }
 
     .search-input {
@@ -723,6 +771,13 @@
       text-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
     }
 
+    .meter-time {
+      font-size: 0.84rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
     .meter-meta {
       font-size: 0.71rem;
       color: var(--muted);
@@ -899,8 +954,10 @@
 
     @media (max-width: 768px) {
       body { padding: 10px; }
+      .login-card { padding: 26px 16px; max-width: 95vw; }
+      .login-title { font-size: clamp(0.95rem, 4.8vw, 1.22rem); white-space: nowrap; }
       .header { padding: 14px; gap: 12px; }
-      .title-area h1 { font-size: 1.18rem; }
+      .title-area h1 { font-size: clamp(0.95rem, 4.2vw, 1.18rem); white-space: nowrap; }
       .subtitle { font-size: 0.78rem; line-height: 1.45; }
       .right-panel { width: 100%; justify-content: space-between; gap: 8px; }
       .timestamp-box { flex: 1; text-align: left; padding: 8px 12px; }
@@ -930,8 +987,10 @@
       .toolbar-left, .toolbar-right { width: 100%; gap: 8px; }
       .tab-group { width: 100%; display: flex; }
       .tab-btn { flex: 1; text-align: center; padding: 8px 6px; font-size: 0.8rem; }
-      .filter-group { width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-      .filter-btn { text-align: center; padding: 7px 6px; font-size: 0.76rem; }
+      .region-filter-group { width: 100%; justify-content: space-between; padding: 8px 10px; gap: 6px; }
+      .region-check-item { padding: 4px 6px; gap: 5px; }
+      .region-check-box { width: 19px; height: 19px; }
+      .region-check-label-text { font-size: 0.82rem; }
       .search-input { flex: 1; width: auto; font-size: 16px; padding: 7px 10px; }
 
       .grid-container { grid-template-columns: 1fr; gap: 12px; }
@@ -946,6 +1005,7 @@
       .pg-code { font-size: 0.64rem; padding: 1px 4px; }
       .region-tag { font-size: 0.64rem; padding: 1px 4px; }
       .meter-mw { font-size: 0.84rem; }
+      .meter-time { font-size: 0.72rem; }
       .meter-meta { font-size: 0.64rem; }
       .exceed-tag { font-size: 0.62rem; padding: 1px 4px; }
       .limit-input { width: 58px; padding: 5px 4px; font-size: 16px; }
@@ -1066,19 +1126,41 @@
           </button>
         </div>
 
-        <div class="filter-group">
-          <button type="button" class="filter-btn active" id="filterAll" onclick="setFilterMode('all')">
-            전체
-          </button>
-          <button type="button" class="filter-btn exceed-filter" id="filterExceed" onclick="setFilterMode('exceed')">
-            🚨 계량 &gt; 제어지시 초과만
-          </button>
-          <button type="button" class="filter-btn" id="filterStopO" onclick="setFilterMode('stopO')">
-            ⭕ 정지가능
-          </button>
-          <button type="button" class="filter-btn" id="filterStopX" onclick="setFilterMode('stopX')">
-            ❌ 정지불가
-          </button>
+        <div class="region-filter-group" id="regionFilterGroup">
+          <span class="region-filter-title">권역:</span>
+          <label class="region-check-item">
+            <input
+              type="checkbox"
+              class="region-check-box"
+              id="chk-한강권역"
+              value="한강권역"
+              checked
+              onchange="handleRegionCheckChange()"
+            />
+            <span class="region-check-label-text">한강</span>
+          </label>
+          <label class="region-check-item">
+            <input
+              type="checkbox"
+              class="region-check-box"
+              id="chk-금·영·섬권역"
+              value="금·영·섬권역"
+              checked
+              onchange="handleRegionCheckChange()"
+            />
+            <span class="region-check-label-text">금영섬</span>
+          </label>
+          <label class="region-check-item">
+            <input
+              type="checkbox"
+              class="region-check-box"
+              id="chk-낙동강권역"
+              value="낙동강권역"
+              checked
+              onchange="handleRegionCheckChange()"
+            />
+            <span class="region-check-label-text">낙동강</span>
+          </label>
         </div>
       </div>
 
@@ -1340,9 +1422,9 @@
     let lastInputsUpdatedAt = 0;
     let pushInputsTimer = null;
 
-    // 화면 뷰/필터 상태
+    // 화면 뷰/권역선택 상태
     let currentViewMode = "region"; // 'region' | 'all'
-    let currentFilterMode = "all";  // 'all' | 'exceed' | 'stopO' | 'stopX'
+    let selectedRegions = new Set(["한강권역", "금·영·섬권역", "낙동강권역"]); // 디폴트: 모두 선택
     let searchKeyword = "";
 
     function loadUserInputs() {
@@ -1722,13 +1804,11 @@
     function updateSingleRowExceedState(plantId) {
       const rowEl = document.getElementById(`row-${plantId}`);
       const mwEl = document.getElementById(`meter-mw-${plantId}`);
-      const badgeWrapEl = document.getElementById(`exceed-badge-${plantId}`);
       const inputEl = document.getElementById(`limit-input-${plantId}`);
 
-      if (!rowEl || !mwEl || !badgeWrapEl) return;
+      if (!rowEl || !mwEl) return;
 
       const exceeded = isLimitExceeded(plantId);
-      const m = meterDataById[plantId];
       const inp = getPlantInput(plantId);
 
       rowEl.classList.toggle("row-exceeded", exceeded);
@@ -1736,13 +1816,6 @@
 
       if (inputEl) {
         inputEl.classList.toggle("has-val", inp.limitMw !== "");
-      }
-
-      if (exceeded && m && m.meterMw !== null) {
-        const diff = m.meterMw - parseFloat(inp.limitMw);
-        badgeWrapEl.innerHTML = `<span class="exceed-tag">초과 +${fmtMw(diff, 3)} MW</span>`;
-      } else {
-        badgeWrapEl.innerHTML = "";
       }
     }
 
@@ -1753,13 +1826,20 @@
       renderGrid();
     }
 
-    function setFilterMode(mode) {
-      currentFilterMode = mode;
-      document.getElementById("filterAll").classList.toggle("active", mode === "all");
-      document.getElementById("filterExceed").classList.toggle("active", mode === "exceed");
-      document.getElementById("filterStopO").classList.toggle("active", mode === "stopO");
-      document.getElementById("filterStopX").classList.toggle("active", mode === "stopX");
-      renderGrid();
+    /**
+     * 모바일/PC 권역별 선택 체크박스 변경 핸들러 (디폴트: 한강, 금영섬, 낙동강 모두 체크)
+     */
+    function handleRegionCheckChange() {
+      const chkH = document.getElementById("chk-한강권역");
+      const chkG = document.getElementById("chk-금·영·섬권역");
+      const chkN = document.getElementById("chk-낙동강권역");
+
+      selectedRegions.clear();
+      if (chkH && chkH.checked) selectedRegions.add("한강권역");
+      if (chkG && chkG.checked) selectedRegions.add("금·영·섬권역");
+      if (chkN && chkN.checked) selectedRegions.add("낙동강권역");
+
+      renderAll();
     }
 
     function handleSearchInput(val) {
@@ -1778,10 +1858,11 @@
     }
 
     /**
-     * 상단 요약 카드 렌더링
+     * 상단 요약 카드 렌더링 (선택된 권역 기준 연동 집계)
      */
     function renderSummaryBar() {
-      const totalCapMw = PLANTS.reduce((acc, p) => acc + p.capacityMw, 0);
+      const activePlants = PLANTS.filter(p => selectedRegions.has(p.region));
+      const totalCapMw = activePlants.reduce((acc, p) => acc + p.capacityMw, 0);
 
       let totalMeterMw = 0;
       let validMeterCount = 0;
@@ -1791,7 +1872,7 @@
       let stopOCount = 0;
       let stopXCount = 0;
 
-      PLANTS.forEach(p => {
+      activePlants.forEach(p => {
         const m = meterDataById[p.id];
         if (m && m.meterMw !== null && !Number.isNaN(m.meterMw)) {
           totalMeterMw += m.meterMw;
@@ -1812,10 +1893,14 @@
         if (inp.stoppable === "X") stopXCount++;
       });
 
+      const regionLabel = selectedRegions.size === 3
+        ? "전체 발전소"
+        : (selectedRegions.size === 0 ? "선택 없음" : "선택 권역 발전소");
+
       document.getElementById("summaryBar").innerHTML = `
         <div class="summary-card">
-          <div class="summary-label">출력제어 대상 발전소</div>
-          <div class="summary-val">${PLANTS.length}개소</div>
+          <div class="summary-label">출력제어 대상 (${regionLabel})</div>
+          <div class="summary-val">${activePlants.length}개소</div>
           <div class="summary-sub">설비용량 합계: <strong>${fmtMw(totalCapMw, 2)} MW</strong></div>
         </div>
         <div class="summary-card">
@@ -1824,7 +1909,7 @@
             ${hasCrawledMeters ? `${fmtMw(totalMeterMw, 3)} MW` : "미조회"}
           </div>
           <div class="summary-sub">
-            ${hasCrawledMeters ? `정상 조회: ${validMeterCount} / ${PLANTS.length}개소` : "[계량데이터 새로고침] 클릭 시 조회"}
+            ${hasCrawledMeters ? `정상 조회: ${validMeterCount} / ${activePlants.length}개소` : "[계량데이터 새로고침] 클릭 시 조회"}
           </div>
         </div>
         <div class="summary-card">
@@ -1848,23 +1933,23 @@
             <span style="color: var(--muted); font-size: 0.95rem;"> / </span>
             <span style="color: var(--err-text);">X ${stopXCount}</span>
           </div>
-          <div class="summary-sub">미선택: ${PLANTS.length - stopOCount - stopXCount}개소</div>
+          <div class="summary-sub">미선택: ${activePlants.length - stopOCount - stopXCount}개소</div>
         </div>
       `;
     }
 
     function filterPlants(list) {
       return list.filter(p => {
+        // 1. 권역 체크 필터 (한강, 금영섬, 낙동강)
+        if (!selectedRegions.has(p.region)) return false;
+
+        // 2. 검색어 필터
         if (searchKeyword) {
           const hitName = p.name.toLowerCase().includes(searchKeyword);
           const hitCode = p.pgCode.toLowerCase().includes(searchKeyword);
           const hitRegion = p.region.toLowerCase().includes(searchKeyword);
           if (!hitName && !hitCode && !hitRegion) return false;
         }
-        const inp = getPlantInput(p.id);
-        if (currentFilterMode === "exceed" && !isLimitExceeded(p.id)) return false;
-        if (currentFilterMode === "stopO" && inp.stoppable !== "O") return false;
-        if (currentFilterMode === "stopX" && inp.stoppable !== "X") return false;
         return true;
       });
     }
@@ -1873,7 +1958,7 @@
       if (plants.length === 0) {
         return `
           <tr>
-            <td colspan="5" class="center" style="padding: 28px; color: var(--muted);">
+            <td colspan="6" class="center" style="padding: 28px; color: var(--muted);">
               조건에 해당하는 발전소가 없습니다.
             </td>
           </tr>
@@ -1890,9 +1975,7 @@
           ? `${fmtMw(m.meterMw, 3)} MW`
           : (hasCrawledMeters ? "수신실패" : "미조회");
 
-        const diff = exceeded && hasMeterVal
-          ? m.meterMw - parseFloat(inp.limitMw)
-          : 0;
+        const meterTimeText = hasMeterVal && m && m.time && m.time !== "-" ? m.time : "-";
 
         return `
           <tr id="row-${p.id}" class="${exceeded ? "row-exceeded" : ""}">
@@ -1900,25 +1983,19 @@
               <div class="plant-name-wrap">
                 ${showRegionBadge ? `<span class="region-tag">${p.region.replace("권역", "")}</span>` : ""}
                 <span class="plant-name">${p.name}</span>
-                <span class="pg-code">${p.pgCode}</span>
               </div>
             </td>
             <td class="num">
               <span class="cap-val">${fmtMw(p.capacityMw, 2)}</span>
             </td>
             <td class="num">
-              <div class="meter-cell">
-                <span
-                  id="meter-mw-${p.id}"
-                  class="meter-mw ${!hasMeterVal ? "unloaded" : ""} ${exceeded ? "exceeded" : ""}"
-                >${meterText}</span>
-                <div class="meter-meta">
-                  <span id="exceed-badge-${p.id}">
-                    ${exceeded ? `<span class="exceed-tag">초과 +${fmtMw(diff, 3)} MW</span>` : ""}
-                  </span>
-                  ${m ? `<span>${m.time !== "-" ? `${m.time} 기준` : m.flag}</span>` : ""}
-                </div>
-              </div>
+              <span
+                id="meter-mw-${p.id}"
+                class="meter-mw ${!hasMeterVal ? "unloaded" : ""} ${exceeded ? "exceeded" : ""}"
+              >${meterText}</span>
+            </td>
+            <td class="center">
+              <span class="meter-time">${meterTimeText}</span>
             </td>
             <td class="num">
               <div class="limit-input-wrap">
@@ -1958,6 +2035,18 @@
     function renderGrid() {
       const container = document.getElementById("gridContainer");
 
+      if (selectedRegions.size === 0) {
+        container.classList.remove("single-view");
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; background: var(--card); border: 1px dashed var(--border); border-radius: 12px; padding: 48px 20px; text-align: center; color: var(--muted);">
+            <div style="font-size: 2rem; margin-bottom: 8px;">🗺️</div>
+            <div style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">선택된 권역이 없습니다</div>
+            <div style="font-size: 0.85rem;">상단의 권역 체크박스(한강, 금영섬, 낙동강)를 선택해주세요.</div>
+          </div>
+        `;
+        return;
+      }
+
       if (currentViewMode === "all") {
         container.classList.add("single-view");
         const filtered = filterPlants(PLANTS);
@@ -1984,6 +2073,7 @@
                     <th>발전소명</th>
                     <th class="num">설비용량</th>
                     <th class="num">계량데이터</th>
+                    <th class="center">계량시간</th>
                     <th class="num">제어지시값</th>
                     <th class="center">정지가능여부</th>
                   </tr>
@@ -1999,7 +2089,9 @@
       }
 
       container.classList.remove("single-view");
-      container.innerHTML = REGIONS.map(regionName => {
+      const activeRegions = REGIONS.filter(regionName => selectedRegions.has(regionName));
+
+      container.innerHTML = activeRegions.map(regionName => {
         const regionPlants = filterPlants(PLANTS.filter(p => p.region === regionName));
         const capSum = regionPlants.reduce((acc, p) => acc + p.capacityMw, 0);
         const meterSum = regionPlants.reduce((acc, p) => {
@@ -2024,6 +2116,7 @@
                     <th>발전소명</th>
                     <th class="num">설비용량</th>
                     <th class="num">계량데이터</th>
+                    <th class="center">계량시간</th>
                     <th class="num">제어지시값</th>
                     <th class="center">정지가능여부</th>
                   </tr>
