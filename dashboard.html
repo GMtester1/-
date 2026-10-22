@@ -3,22 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>K-water 실시간 발전실적 대시보드</title>
+  <title>K-water 전력거래소 출력제어 대응 대시보드</title>
   <style>
     :root {
       --bg: #0f172a;
       --card: #1e293b;
+      --card-alt: #162032;
       --border: #334155;
       --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #38bdf8;
       --accent-hover: #0ea5e9;
-      --ok-bg: rgba(16, 185, 129, 0.15);
+      --ok-bg: rgba(16, 185, 129, 0.16);
       --ok-text: #34d399;
-      --err-bg: rgba(239, 68, 68, 0.15);
-      --err-text: #f87171;
+      --ok-border: rgba(52, 211, 153, 0.45);
+      --err-bg: rgba(239, 68, 68, 0.18);
+      --err-text: #ff4d4f;
+      --err-border: #ef4444;
+      --warn-bg: rgba(245, 158, 11, 0.15);
+      --warn-text: #fbbf24;
+      --warn-border: rgba(251, 191, 36, 0.45);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Pretendard', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg);
@@ -26,7 +38,14 @@
       padding: 20px;
       line-height: 1.5;
     }
-    /* 로그인 모달 화면 */
+
+    .app-container {
+      display: none;
+      max-width: 1680px;
+      margin: 0 auto;
+    }
+
+    /* 최초 접속 로그인 모달 화면 */
     #loginOverlay {
       position: fixed;
       inset: 0;
@@ -37,6 +56,7 @@
       z-index: 9999;
       padding: 20px;
     }
+
     .login-card {
       width: 100%;
       max-width: 390px;
@@ -46,6 +66,7 @@
       padding: 32px 26px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
     }
+
     .login-title {
       font-size: 1.35rem;
       font-weight: 800;
@@ -53,15 +74,18 @@
       margin-bottom: 6px;
       color: var(--text);
     }
+
     .login-desc {
       font-size: 0.85rem;
       color: var(--muted);
       text-align: center;
       margin-bottom: 24px;
     }
+
     .form-group {
       margin-bottom: 16px;
     }
+
     .form-group label {
       display: block;
       font-size: 0.82rem;
@@ -69,6 +93,7 @@
       color: var(--muted);
       margin-bottom: 6px;
     }
+
     .form-input {
       width: 100%;
       padding: 12px 14px;
@@ -80,9 +105,11 @@
       outline: none;
       transition: border-color 0.15s;
     }
+
     .form-input:focus {
       border-color: var(--accent);
     }
+
     .login-error {
       color: var(--err-text);
       font-size: 0.83rem;
@@ -90,6 +117,7 @@
       text-align: center;
       display: none;
     }
+
     .login-btn {
       width: 100%;
       padding: 13px;
@@ -102,105 +130,11 @@
       cursor: pointer;
       transition: background 0.15s;
     }
+
     .login-btn:hover {
       background: var(--accent-hover);
     }
 
-    /* 대시보드 본문 (로그인 전 숨김) */
-    #appContent {
-      display: none;
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
-      padding: 20px 24px;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-    }
-    .title-area h1 {
-      font-size: 1.45rem;
-      font-weight: 800;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .live-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: #10b981;
-      box-shadow: 0 0 10px #10b981;
-      animation: pulse 2s infinite;
-      flex-shrink: 0;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
-    }
-    .subtitle {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .right-panel {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-    }
-    .timestamp-box {
-      background: rgba(56, 189, 248, 0.14);
-      border: 2px solid var(--accent);
-      border-radius: 12px;
-      padding: 10px 18px;
-      text-align: right;
-    }
-    .timestamp-label {
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.04em;
-    }
-    .timestamp-value {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #ffffff;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.02em;
-    }
-    .refresh-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #0f172a;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 20px;
-      font-size: 0.92rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-    }
-    .refresh-btn:hover:not(:disabled) {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-    .refresh-btn:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
     .logout-btn {
       background: transparent;
       color: var(--muted);
@@ -210,143 +144,770 @@
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.15s;
     }
+
     .logout-btn:hover {
       color: var(--text);
       border-color: var(--muted);
     }
+
+    /* 상단 헤더 */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .title-area h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .subtitle code {
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-weight: 700;
+    }
+
+    .right-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .timestamp-box {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1.5px solid var(--accent);
+      border-radius: 12px;
+      padding: 9px 16px;
+      text-align: right;
+    }
+
+    .timestamp-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+
+    .timestamp-value {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 22px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .refresh-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
     .spin {
       display: inline-block;
       animation: rotate 1s linear infinite;
     }
+
     @keyframes rotate {
       100% { transform: rotate(360deg); }
     }
+
+    /* 전력거래소(KPX) 출력제어 예고 공지 배너 */
+    .kpx-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px solid var(--warn-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.35);
+      transition: all 0.25s ease;
+    }
+
+    .kpx-banner.new-alert {
+      border-color: var(--err-border);
+      background: linear-gradient(135deg, rgba(127, 29, 29, 0.35) 0%, rgba(30, 41, 59, 0.95) 100%);
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.35);
+    }
+
+    .kpx-left {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .kpx-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kpx-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border: 1px solid var(--warn-border);
+    }
+
+    .kpx-badge.urgent {
+      background: var(--err-bg);
+      color: #fca5a5;
+      border-color: var(--err-border);
+      animation: pulse 1.5s infinite;
+    }
+
+    .kpx-post-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .kpx-post-title:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .kpx-schedule-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .kpx-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.88rem;
+    }
+
+    .kpx-chip.highlight-date {
+      border-color: rgba(251, 191, 36, 0.6);
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    .kpx-chip.highlight-time {
+      border-color: rgba(248, 113, 113, 0.65);
+      background: rgba(239, 68, 68, 0.14);
+    }
+
+    .kpx-chip-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .kpx-chip-val {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .kpx-chip.highlight-date .kpx-chip-val {
+      color: #fde68a;
+      font-size: 0.96rem;
+    }
+
+    .kpx-chip.highlight-time .kpx-chip-val {
+      color: #fca5a5;
+      font-size: 0.96rem;
+    }
+
+    .kpx-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .kpx-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .kpx-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-sm:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 상단 요약 바 */
     .summary-bar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
+
     .summary-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
+      border-radius: 12px;
+      padding: 14px 18px;
+      transition: border-color 0.2s;
     }
+
+    .summary-card.danger-card {
+      border-color: var(--err-border);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, var(--card) 100%);
+    }
+
     .summary-label {
       font-size: 0.78rem;
       color: var(--muted);
       margin-bottom: 4px;
+      font-weight: 600;
     }
+
     .summary-val {
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-size: 1.32rem;
+      font-weight: 800;
       color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
+
+    .summary-sub {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* 컨트롤 툴바 (탭, 필터, 검색, 초기화) */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tab-group {
+      display: inline-flex;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 3px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #0f172a;
+    }
+
+    .filter-group {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: #0f172a;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.81rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .filter-btn.exceed-filter.active {
+      border-color: var(--err-border);
+      color: #fca5a5;
+      background: var(--err-bg);
+    }
+
+    .search-input {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.84rem;
+      width: 200px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* 발전소 카드 및 테이블 레이아웃 */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 16px;
     }
+
+    .grid-container.single-view {
+      grid-template-columns: 1fr;
+    }
+
     .group-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
     }
+
     .group-header {
       background: rgba(255, 255, 255, 0.03);
-      padding: 12px 16px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
     }
+
     .group-title {
       font-size: 1.02rem;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .group-count {
+
+    .group-stats {
       font-size: 0.78rem;
       color: var(--muted);
+      display: flex;
+      gap: 10px;
     }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
+      table-layout: auto;
     }
+
     th, td {
-      padding: 10px 14px;
+      padding: 9px 8px;
       text-align: left;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
     }
+
     th {
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       color: var(--muted);
-      font-weight: 600;
-      background: rgba(15, 23, 42, 0.4);
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.55);
+      white-space: nowrap;
     }
+
     td.num, th.num {
       text-align: right;
       font-variant-numeric: tabular-nums;
     }
+
     td.center, th.center {
       text-align: center;
     }
+
     tr:last-child td {
       border-bottom: none;
     }
-    .meter-name {
-      font-weight: 600;
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* 계량데이터 > 제어지시값 초과 행 강조 */
+    tr.row-exceeded td {
+      background: rgba(239, 68, 68, 0.11);
+    }
+
+    tr.row-exceeded:hover td {
+      background: rgba(239, 68, 68, 0.17);
+    }
+
+    .plant-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .plant-name {
+      font-weight: 700;
       color: var(--text);
     }
-    .badge {
-      display: inline-block;
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-size: 0.74rem;
+
+    .pg-code {
+      font-size: 0.71rem;
+      color: var(--muted);
+      background: rgba(148, 163, 184, 0.12);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .region-tag {
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 1px 6px;
+      border-radius: 4px;
       font-weight: 600;
     }
-    .badge-ok {
-      background: var(--ok-bg);
-      color: var(--ok-text);
+
+    .cap-val {
+      font-weight: 600;
+      color: #cbd5e1;
     }
-    .badge-err {
-      background: var(--err-bg);
-      color: var(--err-text);
+
+    /* 계량데이터(MW) 표시 스타일 */
+    .meter-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
     }
-    .val-highlight {
-      font-weight: 700;
-      font-size: 0.98rem;
-      color: #f8fafc;
+
+    .meter-mw {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      transition: color 0.15s;
     }
-    .val-zero {
+
+    .meter-mw.unloaded {
       color: var(--muted);
+      font-weight: 500;
     }
+
+    /* 핵심 요구사항: 계량데이터 > 제어지시값인 경우 계량데이터 빨간색 표시 */
+    .meter-mw.exceeded {
+      color: #ff4d4f !important;
+      font-weight: 900;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+    }
+
+    .meter-meta {
+      font-size: 0.71rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .exceed-tag {
+      display: inline-block;
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    /* 직접입력: 제어지시값(MW) */
+    .limit-input-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .limit-input {
+      width: 74px;
+      padding: 5px 6px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .limit-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    .limit-input.has-val {
+      border-color: rgba(56, 189, 248, 0.55);
+      background: rgba(56, 189, 248, 0.07);
+    }
+
+    /* 직접입력: 정지가능여부(O/X) */
+    .ox-group {
+      display: inline-flex;
+      gap: 3px;
+      background: #0f172a;
+      padding: 2px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+    }
+
+    .ox-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      width: 28px;
+      height: 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .ox-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .ox-btn.active-o {
+      background: #10b981;
+      color: #052e16;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .ox-btn.active-x {
+      background: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+    }
+
+    /* 신규 KPX 출력제어 전망 감지 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .modal-card {
+      background: var(--card);
+      border: 2px solid var(--err-border);
+      border-radius: 16px;
+      max-width: 520px;
+      width: 100%;
+      padding: 26px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fca5a5;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-body {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-row span:first-child {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .modal-row span:last-child {
+      color: #ffffff;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
     .toast {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 22px;
+      right: 22px;
       background: #1e293b;
-      border: 1px solid var(--accent);
+      border: 1.5px solid var(--accent);
       color: var(--text);
-      padding: 12px 16px;
+      padding: 13px 18px;
       border-radius: 10px;
-      font-size: 0.85rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
       display: none;
-      z-index: 1000;
+      z-index: 1500;
     }
-    @media (max-width: 600px) {
+
+    @media (max-width: 768px) {
       body { padding: 12px; }
       .header { padding: 16px; }
       .right-panel { width: 100%; justify-content: space-between; }
-      .timestamp-box { width: 100%; text-align: center; }
-      .refresh-btn { flex: 1; }
+      .timestamp-box { flex: 1; text-align: left; }
+      .refresh-btn { width: 100%; }
       .grid-container { grid-template-columns: 1fr; }
-      th, td { padding: 9px 10px; font-size: 0.84rem; }
+      .kpx-right { align-items: flex-start; width: 100%; }
+      .kpx-meta { text-align: left; }
+      th, td { padding: 8px 8px; font-size: 0.82rem; }
+      .limit-input { width: 76px; }
     }
   </style>
 </head>
@@ -354,7 +915,7 @@
   <!-- 최초 접속 로그인 화면 -->
   <div id="loginOverlay">
     <form class="login-card" onsubmit="handleLogin(event)">
-      <div class="login-title">K-water 계량실적 대시보드</div>
+      <div class="login-title">전력거래소 출력제어 대응 대시보드</div>
       <div class="login-desc">접속을 위해 계정 정보(ID / PW)를 입력해주세요.</div>
       <div class="form-group">
         <label for="userId">아이디 (ID)</label>
@@ -369,54 +930,220 @@
     </form>
   </div>
 
-  <!-- 대시보드 본문 -->
-  <div id="appContent">
+  <div class="app-container" id="appContent">
+    <!-- 상단 헤더 -->
     <div class="header">
       <div class="title-area">
-        <h1><span class="live-dot"></span> K-water 실시간 계량실적 대시보드</h1>
+        <h1>
+          <span class="live-dot"></span>
+          전력거래소 출력제어 대응 대시보드
+        </h1>
         <div class="subtitle">
-          최근 검침완료시각 기준 &nbsp;|&nbsp; 자동 크롤링 주기: <strong>60분</strong>
+          대상 발전소: <strong>40개소</strong> &nbsp;|&nbsp;
+          단위 환산: <code>5분 데이터(Wh) × 12 / 10⁶ = MW</code> &nbsp;|&nbsp;
+          계량데이터는 저장하지 않으며 <strong>[새로고침]</strong> 클릭 시에만 크롤링합니다.
         </div>
       </div>
       <div class="right-panel">
         <div class="timestamp-box">
-          <div class="timestamp-label">크롤링 갱신시각</div>
-          <div class="timestamp-value" id="crawledAtText">2026-10-20 09:43:10</div>
+          <div class="timestamp-label">계량데이터 조회시각 (비저장)</div>
+          <div class="timestamp-value" id="meterCrawledAtText">미조회 (새로고침 클릭)</div>
         </div>
-        <button class="refresh-btn" id="refreshBtn" onclick="triggerRefresh()">
-          <span id="refreshIcon">↻</span>
-          <span id="refreshLabel">새로고침</span>
+        <button class="refresh-btn" id="refreshMeterBtn" onclick="crawlMetersNow()">
+          <span id="refreshMeterIcon">↻</span>
+          <span id="refreshMeterLabel">계량데이터 새로고침</span>
         </button>
-        <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+        <button type="button" class="logout-btn" onclick="handleLogout()">로그아웃</button>
       </div>
     </div>
 
+    <!-- 전력거래소(KPX) 육지 출력제어 전망 공지 배너 (3시간 주기 자동 크롤링) -->
+    <div class="kpx-banner" id="kpxBanner">
+      <div class="kpx-left">
+        <div class="kpx-top-row">
+          <span class="kpx-badge" id="kpxBadge">📢 전력거래소 출력제어 전망 확인 중...</span>
+          <a
+            href="https://www.kpx.or.kr/board.es?mid=a10109050000&bid=0216"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="kpx-post-title"
+            id="kpxPostTitle"
+          >
+            전력거래소(KPX) 비중앙 출력제어 게시판 데이터를 불러오는 중입니다...
+          </a>
+        </div>
+        <div class="kpx-schedule-chips" id="kpxChipsArea">
+          <div class="kpx-chip highlight-date">
+            <span class="kpx-chip-label">📅 예정일</span>
+            <span class="kpx-chip-val" id="kpxScheduledDate">-</span>
+          </div>
+          <div class="kpx-chip highlight-time">
+            <span class="kpx-chip-label">⏰ 예정 시간</span>
+            <span class="kpx-chip-val" id="kpxScheduledTime">-</span>
+          </div>
+          <div class="kpx-chip">
+            <span class="kpx-chip-label">⚡ 수급전망</span>
+            <span class="kpx-chip-val" id="kpxDemandForecast">-</span>
+          </div>
+          <div class="kpx-chip">
+            <span class="kpx-chip-label">📌 제한사유</span>
+            <span class="kpx-chip-val" id="kpxReason">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="kpx-right">
+        <div class="kpx-meta">
+          <div>자동 확인 주기: <strong>3시간</strong> &nbsp;|&nbsp; <span id="kpxCheckedAtText">확인 중...</span></div>
+          <div id="kpxLatestStatusText" style="margin-top: 2px;"></div>
+        </div>
+        <div class="kpx-actions">
+          <button type="button" class="btn-sm" id="checkKpxBtn" onclick="checkKpxNoticeNow(true)">
+            <span id="checkKpxIcon">🔍</span> 예고 즉시 확인
+          </button>
+          <a
+            href="https://www.kpx.or.kr/board.es?mid=a10109050000&bid=0216"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-sm"
+          >
+            KPX 게시판 원문 ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상단 요약 카드 바 -->
     <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- 탭 전환 / 필터 / 검색 / 초기화 툴바 -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="tab-group">
+          <button type="button" class="tab-btn active" id="tabRegionBtn" onclick="setViewMode('region')">
+            권역별 보기
+          </button>
+          <button type="button" class="tab-btn" id="tabAllBtn" onclick="setViewMode('all')">
+            전체 통합 보기
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <button type="button" class="filter-btn active" id="filterAll" onclick="setFilterMode('all')">
+            전체
+          </button>
+          <button type="button" class="filter-btn exceed-filter" id="filterExceed" onclick="setFilterMode('exceed')">
+            🚨 계량 &gt; 제어지시 초과만
+          </button>
+          <button type="button" class="filter-btn" id="filterStopO" onclick="setFilterMode('stopO')">
+            ⭕ 정지가능
+          </button>
+          <button type="button" class="filter-btn" id="filterStopX" onclick="setFilterMode('stopX')">
+            ❌ 정지불가
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-right">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="발전소명 또는 코드 검색..."
+          oninput="handleSearchInput(this.value)"
+        />
+        <button type="button" class="btn-sm" onclick="resetUserInputs()">
+          🗑️ 입력값 초기화
+        </button>
+      </div>
+    </div>
+
+    <!-- 발전소 테이블 영역 -->
     <div class="grid-container" id="gridContainer"></div>
+  </div>
+
+  <!-- 신규 KPX 출력제어 전망 공지 알림 모달 -->
+  <div class="modal-backdrop" id="kpxAlertModal">
+    <div class="modal-card">
+      <div class="modal-title">🚨 전력거래소 육지 출력제어 전망 공지 알림</div>
+      <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 14px;">
+        전력거래소(KPX) 비중앙 출력제어 게시판에 육지 출력제어 전망 공지가 확인되었습니다.
+      </p>
+      <div class="modal-body">
+        <div class="modal-row">
+          <span>공지 제목</span>
+          <span id="modalKpxTitle">-</span>
+        </div>
+        <div class="modal-row">
+          <span>📅 출력제어 예정일</span>
+          <span id="modalKpxDate" style="color: #fde68a;">-</span>
+        </div>
+        <div class="modal-row">
+          <span>⏰ 예정 시간</span>
+          <span id="modalKpxTime" style="color: #fca5a5;">-</span>
+        </div>
+        <div class="modal-row">
+          <span>⚡ 수급전망</span>
+          <span id="modalKpxDemand">-</span>
+        </div>
+        <div class="modal-row">
+          <span>📌 제한사유</span>
+          <span id="modalKpxReason">-</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a
+          href="https://www.kpx.or.kr/board.es?mid=a10109050000&bid=0216"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-sm"
+          id="modalKpxLink"
+        >
+          게시글 원문 보기 ↗
+        </a>
+        <button
+          type="button"
+          class="refresh-btn"
+          style="padding: 9px 18px; font-size: 0.86rem;"
+          onclick="closeKpxModal()"
+        >
+          확인
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
-    const EXPECTED_HASH = "5a2aac93edd301cba300c0783ffc242894e6aa90ab5eda43a1a12d1b439d8a0c";
-    const STORAGE_KEY = "kwater_dashboard_auth_v1";
-    let PAYLOAD = {"meta":{"crawledAt":"2026-10-20 09:43:10"},"results":[{"group":"대수력","name":"안동수력#1","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"대수력","name":"임하수력#1","time":"09:40","whTimes12":5706288,"flag":"정상"},{"group":"대수력","name":"합천수력#1","time":"09:35","whTimes12":45976896,"flag":"정상"},{"group":"대수력","name":"합천수력#2","time":"09:35","whTimes12":0,"flag":"정상"},{"group":"대수력","name":"남강수력#1","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"대수력","name":"남강수력#2","time":"10:40","whTimes12":0,"flag":"실패(비정상)"},{"group":"보수력","name":"상주보#1","time":"09:40","whTimes12":2142720,"flag":"정상"},{"group":"보수력","name":"낙단보#1","time":"09:40","whTimes12":1274400,"flag":"정상"},{"group":"보수력","name":"구미보","time":"09:40","whTimes12":2691360,"flag":"정상"},{"group":"보수력","name":"칠곡보#1","time":"09:40","whTimes12":1955520,"flag":"정상"},{"group":"보수력","name":"강정보#1","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"보수력","name":"달성보#1","time":"09:40","whTimes12":816480,"flag":"정상"},{"group":"보수력","name":"합천창녕보","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"보수력","name":"창녕함안보","time":"09:40","whTimes12":4728960,"flag":"정상"},{"group":"중소댐","name":"군위댐소수력#1","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"중소댐","name":"보현산소수력","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"중소댐","name":"부항댐소수력#1","time":"09:35","whTimes12":0,"flag":"정상"},{"group":"중소댐","name":"영주댐소수력","time":"09:40","whTimes12":1019520,"flag":"정상"},{"group":"중소댐","name":"성덕소수력","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"조정지댐","name":"안동소수력#1","time":"09:40","whTimes12":0,"flag":"정상"},{"group":"조정지댐","name":"임하소수력#1","time":"09:40","whTimes12":370944,"flag":"정상"},{"group":"조정지댐","name":"합천소수력#1","time":"09:00","whTimes12":540000,"flag":"정상"},{"group":"현장","name":"밀양소수력#1","time":"09:40","whTimes12":296496,"flag":"정상"},{"group":"현장","name":"고산정수장소수력#1","time":"09:40","whTimes12":118368,"flag":"정상"},{"group":"현장","name":"안계소수력#1","time":"09:40","whTimes12":826560,"flag":"정상"},{"group":"현장","name":"영천소수력#1","time":"09:40","whTimes12":129600,"flag":"정상"}]};
-    const GROUPS = ["대수력","보수력","중소댐","조정지댐","현장"];
+    const LOCAL_PORT = 3010;
+    const KPX_POLL_INTERVAL_MS = 3 * 60 * 60 * 1000; // 3시간 주기
+    const EXPECTED_HASH = "5a2aac93edd301cba300c0783ffc242894e6aa90ab5eda43a1a12d1b439d8a0c"; // sha256("kwaterpower:giospower")
+    const STORAGE_KEY_AUTH = "curtailment_dashboard_auth_v1";
+    const STORAGE_KEY_INPUTS = "curtailment_user_inputs_v1";
+    const STORAGE_KEY_LAST_KPX_NO = "curtailment_last_kpx_list_no_v1";
 
-    // 순수 JS SHA-256 구현 (https, http, file:// 모든 스마트폰/PC 환경 지원)
+    // 외부 웹(Vercel/GitHub Pages)/스마트폰 <-> 사내 24시간 PC 실시간 중계용 설정
+    const SUPABASE_URL = "https://yihwudxvoplamekroprx.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpaHd1ZHh2b3BsYW1la3JvcHJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTM0NDAsImV4cCI6MjEwMzQ2OTQ0MH0.FX2uU90oZClfiwTJX5S0hDMbPEKMepvGiougVStK7XI";
+    const SUPABASE_TABLE = "generator_shutdown_schedules";
+    const KEY_METER_CMD = "CURTAILMENT_METER_CMD";
+    const KEY_METER_RES = "CURTAILMENT_METER_RES";
+    const KEY_KPX_DATA = "CURTAILMENT_KPX_DATA";
+
+    // 순수 JS SHA-256 구현 (http, https, file:// 모든 환경 호환)
     function sha256(ascii) {
       function rightRotate(value, amount) {
         return (value >>> amount) | (value << (32 - amount));
       }
       var mathPow = Math.pow;
       var maxWord = mathPow(2, 32);
-      var lengthProperty = 'length';
+      var lengthProperty = "length";
       var i, j;
-      var result = '';
+      var result = "";
       var words = [];
       var asciiBitLength = ascii[lengthProperty] * 8;
-      var hash = sha256.h = sha256.h || [];
-      var k = sha256.k = sha256.k || [];
+      var hash = (sha256.h = sha256.h || []);
+      var k = (sha256.k = sha256.k || []);
       var primeCounter = k[lengthProperty];
       var isComposite = {};
       for (var candidate = 2; primeCounter < 64; candidate++) {
@@ -424,40 +1151,44 @@
           for (i = 0; i < 313; i += candidate) {
             isComposite[i] = candidate;
           }
-          hash[primeCounter] = (mathPow(candidate, .5) * maxWord) | 0;
+          hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
           k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
         }
       }
-      ascii += '\x80';
-      while (ascii[lengthProperty] % 64 - 56) ascii += '\x00';
+      ascii += "\x80";
+      while ((ascii[lengthProperty] % 64) - 56) ascii += "\x00";
       for (i = 0; i < ascii[lengthProperty]; i++) {
         j = ascii.charCodeAt(i);
-        if (j >> 8) return '';
-        words[i >> 2] |= j << ((3 - i) % 4) * 8;
+        if (j >> 8) return "";
+        words[i >> 2] |= j << (((3 - i) % 4) * 8);
       }
-      words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
-      words[words[lengthProperty]] = (asciiBitLength);
-      for (j = 0; j < words[lengthProperty];) {
-        var w = words.slice(j, j += 16);
+      words[words[lengthProperty]] = (asciiBitLength / maxWord) | 0;
+      words[words[lengthProperty]] = asciiBitLength;
+      for (j = 0; j < words[lengthProperty]; ) {
+        var w = words.slice(j, (j += 16));
         var oldHash = hash;
         hash = hash.slice(0, 8);
         for (i = 0; i < 64; i++) {
-          var i2 = i + j;
-          var w15 = w[i - 15], w2 = w[i - 2];
-          var a = hash[0], e = hash[4];
-          var temp1 = hash[7]
-            + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
-            + ((e & hash[5]) ^ ((~e) & hash[6]))
-            + k[i]
-            + (w[i] = (i < 16) ? w[i] : (
-                w[i - 16]
-                + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
-                + w[i - 7]
-                + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
-              ) | 0
-            );
-          var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
-            + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+          var w15 = w[i - 15],
+            w2 = w[i - 2];
+          var a = hash[0],
+            e = hash[4];
+          var temp1 =
+            hash[7] +
+            (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +
+            ((e & hash[5]) ^ (~e & hash[6])) +
+            k[i] +
+            (w[i] =
+              i < 16
+                ? w[i]
+                : (w[i - 16] +
+                    (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
+                    w[i - 7] +
+                    (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))) |
+                  0);
+          var temp2 =
+            (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +
+            ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
           hash = [(temp1 + temp2) | 0].concat(hash);
           hash[4] = (hash[4] + temp1) | 0;
         }
@@ -468,192 +1199,764 @@
       for (i = 0; i < 8; i++) {
         for (j = 3; j + 1; j--) {
           var b = (hash[i] >> (j * 8)) & 255;
-          result += ((b < 16) ? 0 : '') + b.toString(16);
+          result += (b < 16 ? 0 : "") + b.toString(16);
         }
       }
       return result;
     }
 
     function checkAuth() {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY_AUTH);
       if (saved === EXPECTED_HASH) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
-        render();
-        // GitHub Pages 환경에서 열렸을 때 최신 data.json이 있으면 자동 로드
-        fetchLatestJsonSilent();
+        document.getElementById("loginOverlay").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        renderAll();
+        checkKpxNoticeNow(false);
       } else {
-        document.getElementById('loginOverlay').style.display = 'flex';
-        document.getElementById('appContent').style.display = 'none';
+        document.getElementById("loginOverlay").style.display = "flex";
+        document.getElementById("appContent").style.display = "none";
       }
     }
 
     function handleLogin(e) {
       e.preventDefault();
-      const id = document.getElementById('userId').value.trim();
-      const pw = document.getElementById('userPw').value.trim();
-      const hash = sha256(id + ':' + pw);
+      const id = document.getElementById("userId").value.trim();
+      const pw = document.getElementById("userPw").value.trim();
+      const hash = sha256(id + ":" + pw);
       if (hash === EXPECTED_HASH) {
-        localStorage.setItem(STORAGE_KEY, hash);
-        document.getElementById('loginError').style.display = 'none';
+        localStorage.setItem(STORAGE_KEY_AUTH, hash);
+        document.getElementById("loginError").style.display = "none";
         checkAuth();
       } else {
-        document.getElementById('loginError').style.display = 'block';
+        document.getElementById("loginError").style.display = "block";
       }
     }
 
     function handleLogout() {
-      localStorage.removeItem(STORAGE_KEY);
-      document.getElementById('userId').value = '';
-      document.getElementById('userPw').value = '';
+      localStorage.removeItem(STORAGE_KEY_AUTH);
+      document.getElementById("userId").value = "";
+      document.getElementById("userPw").value = "";
       checkAuth();
     }
 
-    function fmt(n) {
-      if (n === null || n === undefined || Number.isNaN(n)) return '-';
-      return Number(n).toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-    }
+    const REGIONS = ["한강권역", "금·영·섬권역", "낙동강권역"];
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.style.display = 'block';
-      setTimeout(() => { t.style.display = 'none'; }, 3500);
-    }
+    // 출력제어 발전소.xlsx 기준 40개소 고정 데이터
+    const PLANTS = [
+      // 1. 한강권역 (8개소)
+      { id: "1212", region: "한강권역", name: "강천보소수력", pgCode: "1212", capacityMw: 5 },
+      { id: "1095", region: "한강권역", name: "단양수중보소수력", pgCode: "1095", capacityMw: 2.4 },
+      { id: "1228", region: "한강권역", name: "여주보소수력", pgCode: "1228", capacityMw: 5 },
+      { id: "1227", region: "한강권역", name: "이포보소수력", pgCode: "1227", capacityMw: 3 },
+      { id: "AJ67", region: "한강권역", name: "충주3수력", pgCode: "AJ67", capacityMw: 5 },
+      { id: "1322", region: "한강권역", name: "횡성소수력", pgCode: "1322", capacityMw: 1 },
+      { id: "BG75", region: "한강권역", name: "충주2수력", pgCode: "BG75", capacityMw: 12 },
+      { id: "BT12", region: "한강권역", name: "소양강소수력", pgCode: "BT12", capacityMw: 0.75 },
 
-    async function fetchLatestJsonSilent() {
+      // 2. 금·영·섬권역 (14개소)
+      { id: "1334", region: "금·영·섬권역", name: "공주보소수력", pgCode: "1334", capacityMw: 3 },
+      { id: "1221", region: "금·영·섬권역", name: "대청댐소수력#1", pgCode: "1221", capacityMw: 0.8 },
+      { id: "5572", region: "금·영·섬권역", name: "대청댐소수력#2", pgCode: "5572", capacityMw: 0.9 },
+      { id: "1229", region: "금·영·섬권역", name: "백제보소수력", pgCode: "1229", capacityMw: 2.64 },
+      { id: "1328", region: "금·영·섬권역", name: "보령제2소수력", pgCode: "1328", capacityMw: 0.56 },
+      { id: "4628", region: "금·영·섬권역", name: "섬진강댐소수력", pgCode: "4628", capacityMw: 1.65 },
+      { id: "1333", region: "금·영·섬권역", name: "세종보소수력", pgCode: "1333", capacityMw: 2.31 },
+      { id: "1216", region: "금·영·섬권역", name: "승촌보소수력", pgCode: "1216", capacityMw: 0.8 },
+      { id: "A462", region: "금·영·섬권역", name: "용담3소수력", pgCode: "A462", capacityMw: 2.13 },
+      { id: "4973", region: "금·영·섬권역", name: "용담고산소수력#1", pgCode: "4973", capacityMw: 0.8 },
+      { id: "1324", region: "금·영·섬권역", name: "용담제2수력", pgCode: "1324", capacityMw: 2.3 },
+      { id: "1671", region: "금·영·섬권역", name: "장흥댐소수력", pgCode: "1671", capacityMw: 0.8 },
+      { id: "1401", region: "금·영·섬권역", name: "주암소수력", pgCode: "1401", capacityMw: 0.99 },
+      { id: "1214", region: "금·영·섬권역", name: "죽산보소수력", pgCode: "1214", capacityMw: 1.22 },
+
+      // 3. 낙동강권역 (18개소)
+      { id: "1213", region: "낙동강권역", name: "강정고령보소수력", pgCode: "1213", capacityMw: 3 },
+      { id: "1703", region: "낙동강권역", name: "고산소수력", pgCode: "1703", capacityMw: 0.56 },
+      { id: "1224", region: "낙동강권역", name: "구미보소수력", pgCode: "1224", capacityMw: 3 },
+      { id: "8933", region: "낙동강권역", name: "군위댐소수력", pgCode: "8933", capacityMw: 0.5 },
+      { id: "1225", region: "낙동강권역", name: "낙단보소수력", pgCode: "1225", capacityMw: 3 },
+      { id: "1217", region: "낙동강권역", name: "달성보소수력", pgCode: "1217", capacityMw: 2.86 },
+      { id: "1325", region: "낙동강권역", name: "밀양소수력", pgCode: "1325", capacityMw: 1.3 },
+      { id: "1317", region: "낙동강권역", name: "반변소수력", pgCode: "1317", capacityMw: 1.06 },
+      { id: "1851", region: "낙동강권역", name: "부항댐소수력", pgCode: "1851", capacityMw: 0.6 },
+      { id: "1226", region: "낙동강권역", name: "상주보소수력", pgCode: "1226", capacityMw: 3 },
+      { id: "1715", region: "낙동강권역", name: "안계소수력", pgCode: "1715", capacityMw: 0.99 },
+      { id: "1318", region: "낙동강권역", name: "안동소수력", pgCode: "1318", capacityMw: 1.5 },
+      { id: "1916", region: "낙동강권역", name: "영주댐수력", pgCode: "1916", capacityMw: 4.95 },
+      { id: "1323", region: "낙동강권역", name: "영천소수력", pgCode: "1323", capacityMw: 1 },
+      { id: "1223", region: "낙동강권역", name: "칠곡보소수력", pgCode: "1223", capacityMw: 3 },
+      { id: "1215", region: "낙동강권역", name: "함안보소수력", pgCode: "1215", capacityMw: 5 },
+      { id: "1218", region: "낙동강권역", name: "합천.창녕보소수력", pgCode: "1218", capacityMw: 5 },
+      { id: "1115", region: "낙동강권역", name: "합천2수력", pgCode: "1115", capacityMw: 1.8 }
+    ];
+
+    // 메모리 내 실시간 계량데이터 맵 (저장하지 않으며 새로고침 버튼 클릭 시에만 갱신)
+    let meterDataById = {};
+    let hasCrawledMeters = false;
+
+    // 사용자 직접입력값 (제어지시값 MW, 정지가능여부 O/X)
+    let userInputsById = loadUserInputs();
+
+    // 화면 뷰/필터 상태
+    let currentViewMode = "region"; // 'region' | 'all'
+    let currentFilterMode = "all";  // 'all' | 'exceed' | 'stopO' | 'stopX'
+    let searchKeyword = "";
+
+    function loadUserInputs() {
       try {
-        const res = await fetch('./data.json?t=' + Date.now(), { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.meta && data.results) {
-            PAYLOAD = data;
-            render();
-          }
-        }
+        const raw = localStorage.getItem(STORAGE_KEY_INPUTS);
+        return raw ? JSON.parse(raw) : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveUserInputs() {
+      try {
+        localStorage.setItem(STORAGE_KEY_INPUTS, JSON.stringify(userInputsById));
       } catch (_) {}
     }
 
-    async function triggerRefresh() {
-      const btn = document.getElementById('refreshBtn');
-      const icon = document.getElementById('refreshIcon');
-      const label = document.getElementById('refreshLabel');
-      btn.disabled = true;
-      icon.classList.add('spin');
-      label.textContent = '크롤링 중...';
-
-      try {
-        // 1차 시도: 로컬 크롤링 서버가 켜져 있는 경우 즉시 실시간 크롤링 수행
-        const localRes = await fetch('http://localhost:3000/api/refresh', { method: 'POST' });
-        if (localRes.ok) {
-          const data = await localRes.json();
-          PAYLOAD = data;
-          render();
-          showToast('실시간 즉시 크롤링 완료! (' + data.meta.crawledAt + ')');
-          return;
-        }
-      } catch (_) {
-        // PC가 꺼져 있거나 외부 스마트폰(GitHub Pages) 접속인 경우 최신 data.json 패치
+    function getPlantInput(plantId) {
+      if (!userInputsById[plantId]) {
+        userInputsById[plantId] = { limitMw: "", stoppable: "" };
       }
+      return userInputsById[plantId];
+    }
+
+    function fmtMw(val, decimals = 3) {
+      if (val === null || val === undefined || val === "" || Number.isNaN(Number(val))) {
+        return "-";
+      }
+      const num = Number(val);
+      return num.toLocaleString("ko-KR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        t.style.display = "none";
+      }, 3800);
+    }
+
+    /**
+     * 계량데이터(MW) > 제어지시값(MW) 초과 여부를 판정합니다.
+     */
+    function isLimitExceeded(plantId) {
+      const m = meterDataById[plantId];
+      const inp = getPlantInput(plantId);
+      if (!m || m.meterMw === null || m.meterMw === undefined || Number.isNaN(m.meterMw)) {
+        return false;
+      }
+      if (inp.limitMw === "" || inp.limitMw === null || inp.limitMw === undefined) {
+        return false;
+      }
+      const limitNum = parseFloat(inp.limitMw);
+      if (Number.isNaN(limitNum)) {
+        return false;
+      }
+      return m.meterMw > limitNum;
+    }
+
+    /**
+     * API 기본 주소를 결정합니다 (file:// 로 열었을 때도 로컬 서버 포트 3010 호출 지원)
+     */
+    function getApiUrl(pathName) {
+      if (window.location.protocol === "file:") {
+        return `http://localhost:${LOCAL_PORT}${pathName}`;
+      }
+      return pathName;
+    }
+
+    function sbHeaders(extra = {}) {
+      return Object.assign({
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Content-Type": "application/json; charset=utf-8"
+      }, extra);
+    }
+
+    async function fetchCloudKey(keyName) {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?category=eq.${keyName}&select=content,updated_at`,
+        { method: "GET", headers: sbHeaders(), cache: "no-store" }
+      );
+      if (!res.ok) return null;
+      const rows = await res.json();
+      if (!rows || !rows.length || !rows[0].content) return null;
+      return {
+        payload: JSON.parse(rows[0].content),
+        updatedAt: Number(rows[0].updated_at) || 0
+      };
+    }
+
+    async function requestCloudMeterCrawl(reqTime) {
+      await fetch(
+        `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=category`,
+        {
+          method: "POST",
+          headers: sbHeaders({ "Prefer": "resolution=merge-duplicates,return=minimal" }),
+          body: JSON.stringify([{
+            category: KEY_METER_CMD,
+            content: "CRAWL_ON_DEMAND",
+            updated_at: reqTime
+          }])
+        }
+      );
+    }
+
+    /**
+     * [계량데이터 새로고침] 버튼 클릭 시 온디맨드 크롤링 수행 (저장된 과거 데이터 자동 로드 없음)
+     */
+    async function crawlMetersNow() {
+      const btn = document.getElementById("refreshMeterBtn");
+      const icon = document.getElementById("refreshMeterIcon");
+      const label = document.getElementById("refreshMeterLabel");
+
+      btn.disabled = true;
+      icon.classList.add("spin");
+      label.textContent = "계량데이터 크롤링 중...";
 
       try {
-        const ghRes = await fetch('./data.json?t=' + Date.now(), { cache: 'no-store' });
-        if (ghRes.ok) {
-          const data = await ghRes.json();
-          PAYLOAD = data;
-          render();
-          showToast('최신 데이터를 불러왔습니다. (' + data.meta.crawledAt + ')');
-        } else {
-          window.location.reload();
+        // 1순위: 로컬 PC 서버(localhost:3010) 또는 Vercel API(/api/meters) 직접 호출
+        let data = null;
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 9000);
+          const res = await fetch(getApiUrl(`/api/meters?t=${Date.now()}`), {
+            method: "GET",
+            cache: "no-store",
+            signal: ctrl.signal
+          });
+          clearTimeout(timer);
+          if (res.ok) {
+            const parsed = await res.json();
+            if (parsed && Array.isArray(parsed.results)) {
+              data = parsed;
+            }
+          }
+        } catch (_) {
+          // 외부 웹/모바일에서 사내망 직접 접근 불가 시 아래 24시간 PC 실시간 중계로 자동 전환
         }
+
+        // 2순위: 외부 웹(Vercel/GitHub Pages) 접속 시 사내 실행 중인 run_crawler.bat에 즉시 크롤링 명령 전송
+        if (!data) {
+          const reqTime = Date.now();
+          await requestCloudMeterCrawl(reqTime);
+          const maxWaitMs = 15000;
+          const startWait = Date.now();
+          while (Date.now() - startWait < maxWaitMs) {
+            await new Promise(r => setTimeout(r, 1100));
+            const cloud = await fetchCloudKey(KEY_METER_RES);
+            if (cloud && cloud.updatedAt >= reqTime && cloud.payload && Array.isArray(cloud.payload.results)) {
+              data = cloud.payload;
+              break;
+            }
+          }
+        }
+
+        if (!data || !Array.isArray(data.results)) {
+          throw new Error("사내 PC에서 run_crawler.bat가 실행 중인지 확인해주세요.");
+        }
+
+        meterDataById = {};
+        data.results.forEach(item => {
+          meterDataById[item.id] = item;
+        });
+        hasCrawledMeters = true;
+
+        document.getElementById("meterCrawledAtText").textContent = data.meta.crawledAt;
+        renderAll();
+        showToast(`실시간 계량데이터 크롤링 완료 (${data.meta.crawledAt})`);
       } catch (err) {
-        window.location.reload();
+        showToast(`계량 크롤링 실패: ${err.message}`);
       } finally {
         btn.disabled = false;
-        icon.classList.remove('spin');
-        label.textContent = '새로고침';
+        icon.classList.remove("spin");
+        label.textContent = "계량데이터 새로고침";
       }
     }
 
-    function render() {
-      const items = PAYLOAD.results;
-      document.getElementById('crawledAtText').textContent = PAYLOAD.meta.crawledAt;
+    /**
+     * 전력거래소(KPX) 육지 출력제어 전망 공지 크롤링 (최초 로드 + 3시간 주기 + 수동 버튼)
+     */
+    async function checkKpxNoticeNow(isManual = false) {
+      const btn = document.getElementById("checkKpxBtn");
+      const icon = document.getElementById("checkKpxIcon");
+      if (btn) btn.disabled = true;
+      if (icon) icon.classList.add("spin");
 
-      let okCount = 0;
-      let errCount = 0;
-      let totalWhTimes12 = 0;
+      try {
+        let notice = null;
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 9000);
+          const res = await fetch(getApiUrl(`/api/kpx-notice?t=${Date.now()}`), {
+            method: "GET",
+            cache: "no-store",
+            signal: ctrl.signal
+          });
+          clearTimeout(timer);
+          if (res.ok) {
+            notice = await res.json();
+          }
+        } catch (_) {}
 
-      items.forEach(item => {
-        if (item.flag === '정상') okCount++;
-        else errCount++;
-        if (item.whTimes12 !== null && !Number.isNaN(item.whTimes12)) {
-          totalWhTimes12 += item.whTimes12;
+        if (!notice || !notice.checkedAt) {
+          const cloudKpx = await fetchCloudKey(KEY_KPX_DATA);
+          if (cloudKpx && cloudKpx.payload) {
+            notice = cloudKpx.payload;
+          }
         }
+
+        if (!notice || !notice.checkedAt) {
+          throw new Error("KPX 공지 조회 실패");
+        }
+        updateKpxBannerUI(notice, isManual);
+      } catch (err) {
+        document.getElementById("kpxCheckedAtText").textContent = "확인 실패 (서버 연결 필요)";
+        if (isManual) {
+          showToast(`전력거래소 공지 확인 실패: ${err.message}`);
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+        if (icon) icon.classList.remove("spin");
+      }
+    }
+
+    function updateKpxBannerUI(notice, isManual) {
+      const banner = document.getElementById("kpxBanner");
+      const badge = document.getElementById("kpxBadge");
+      const titleEl = document.getElementById("kpxPostTitle");
+      const dateEl = document.getElementById("kpxScheduledDate");
+      const timeEl = document.getElementById("kpxScheduledTime");
+      const demandEl = document.getElementById("kpxDemandForecast");
+      const reasonEl = document.getElementById("kpxReason");
+      const checkedAtEl = document.getElementById("kpxCheckedAtText");
+      const statusTextEl = document.getElementById("kpxLatestStatusText");
+
+      checkedAtEl.textContent = `최근 확인: ${notice.checkedAt}`;
+
+      if (!notice.hasForecast || !notice.forecast) {
+        badge.textContent = "안내";
+        badge.className = "kpx-badge";
+        titleEl.textContent = "최근 등록된 '육지 출력제어 전망' 게시글이 없습니다.";
+        dateEl.textContent = "-";
+        timeEl.textContent = "-";
+        demandEl.textContent = "-";
+        reasonEl.textContent = "-";
+        return;
+      }
+
+      const fc = notice.forecast;
+      titleEl.textContent = fc.title;
+      titleEl.href = fc.viewUrl;
+      dateEl.textContent = fc.scheduledDate;
+      timeEl.textContent = fc.scheduledTime;
+      demandEl.textContent = fc.demandForecast;
+      reasonEl.textContent = fc.reason;
+
+      const prevListNo = localStorage.getItem(STORAGE_KEY_LAST_KPX_NO);
+      const isNewPost = prevListNo !== fc.listNo;
+
+      if (notice.isLatestOnBoard) {
+        badge.textContent = "🚨 현재 진행/예고 중인 출력제어 전망";
+        badge.className = "kpx-badge urgent";
+        banner.classList.add("new-alert");
+        statusTextEl.innerHTML = `<span style="color:#fca5a5;font-weight:700;">현재 게시판 최상단 최신 공지입니다 (글번호 #${fc.listNo})</span>`;
+      } else {
+        badge.textContent = "📢 최근 육지 출력제어 전망 공지";
+        badge.className = "kpx-badge";
+        banner.classList.remove("new-alert");
+        const latestTitle = notice.latestBoardPost ? notice.latestBoardPost.title : "-";
+        statusTextEl.textContent = `게시판 최신글: ${latestTitle}`;
+      }
+
+      // 새로운 전망 글 번호가 감지되었거나, 최상단 글이 전망 글일 때 모달 알림 표시
+      if (isNewPost) {
+        localStorage.setItem(STORAGE_KEY_LAST_KPX_NO, fc.listNo);
+        openKpxModal(fc);
+      } else if (isManual) {
+        showToast(`KPX 출력제어 전망 확인 완료: ${fc.scheduledDate} (${fc.scheduledTime})`);
+      }
+    }
+
+    function openKpxModal(fc) {
+      document.getElementById("modalKpxTitle").textContent = fc.title;
+      document.getElementById("modalKpxDate").textContent = fc.scheduledDate;
+      document.getElementById("modalKpxTime").textContent = fc.scheduledTime;
+      document.getElementById("modalKpxDemand").textContent = fc.demandForecast;
+      document.getElementById("modalKpxReason").textContent = fc.reason;
+      document.getElementById("modalKpxLink").href = fc.viewUrl;
+      document.getElementById("kpxAlertModal").style.display = "flex";
+    }
+
+    function closeKpxModal() {
+      document.getElementById("kpxAlertModal").style.display = "none";
+    }
+
+    /**
+     * 제어지시값(MW) 직접입력 이벤트 핸들러 (포커스 유지 채로 해당 행 색상 및 요약바 즉시 갱신)
+     */
+    function handleLimitChange(plantId, rawValue) {
+      const inp = getPlantInput(plantId);
+      inp.limitMw = rawValue.trim();
+      saveUserInputs();
+
+      updateSingleRowExceedState(plantId);
+      renderSummaryBar();
+    }
+
+    /**
+     * 정지가능여부(O/X) 버튼 클릭 핸들러
+     */
+    function handleStoppableSelect(plantId, choice) {
+      const inp = getPlantInput(plantId);
+      inp.stoppable = inp.stoppable === choice ? "" : choice;
+      saveUserInputs();
+      renderAll();
+    }
+
+    /**
+     * 특정 발전소 행의 초과(빨간색) 상태만 즉시 업데이트 (입력창 포커스 끊김 방지)
+     */
+    function updateSingleRowExceedState(plantId) {
+      const rowEl = document.getElementById(`row-${plantId}`);
+      const mwEl = document.getElementById(`meter-mw-${plantId}`);
+      const badgeWrapEl = document.getElementById(`exceed-badge-${plantId}`);
+      const inputEl = document.getElementById(`limit-input-${plantId}`);
+
+      if (!rowEl || !mwEl || !badgeWrapEl) return;
+
+      const exceeded = isLimitExceeded(plantId);
+      const m = meterDataById[plantId];
+      const inp = getPlantInput(plantId);
+
+      rowEl.classList.toggle("row-exceeded", exceeded);
+      mwEl.classList.toggle("exceeded", exceeded);
+
+      if (inputEl) {
+        inputEl.classList.toggle("has-val", inp.limitMw !== "");
+      }
+
+      if (exceeded && m && m.meterMw !== null) {
+        const diff = m.meterMw - parseFloat(inp.limitMw);
+        badgeWrapEl.innerHTML = `<span class="exceed-tag">초과 +${fmtMw(diff, 3)} MW</span>`;
+      } else {
+        badgeWrapEl.innerHTML = "";
+      }
+    }
+
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      document.getElementById("tabRegionBtn").classList.toggle("active", mode === "region");
+      document.getElementById("tabAllBtn").classList.toggle("active", mode === "all");
+      renderGrid();
+    }
+
+    function setFilterMode(mode) {
+      currentFilterMode = mode;
+      document.getElementById("filterAll").classList.toggle("active", mode === "all");
+      document.getElementById("filterExceed").classList.toggle("active", mode === "exceed");
+      document.getElementById("filterStopO").classList.toggle("active", mode === "stopO");
+      document.getElementById("filterStopX").classList.toggle("active", mode === "stopX");
+      renderGrid();
+    }
+
+    function handleSearchInput(val) {
+      searchKeyword = val.trim().toLowerCase();
+      renderGrid();
+    }
+
+    function resetUserInputs() {
+      if (!confirm("직접 입력한 제어지시값(MW)과 정지가능여부(O/X)를 모두 초기화하시겠습니까?")) {
+        return;
+      }
+      userInputsById = {};
+      saveUserInputs();
+      renderAll();
+      showToast("직접입력값이 모두 초기화되었습니다.");
+    }
+
+    /**
+     * 상단 요약 카드 렌더링
+     */
+    function renderSummaryBar() {
+      const totalCapMw = PLANTS.reduce((acc, p) => acc + p.capacityMw, 0);
+
+      let totalMeterMw = 0;
+      let validMeterCount = 0;
+      let limitEnteredCount = 0;
+      let totalLimitMw = 0;
+      let exceedCount = 0;
+      let stopOCount = 0;
+      let stopXCount = 0;
+
+      PLANTS.forEach(p => {
+        const m = meterDataById[p.id];
+        if (m && m.meterMw !== null && !Number.isNaN(m.meterMw)) {
+          totalMeterMw += m.meterMw;
+          validMeterCount++;
+        }
+
+        const inp = getPlantInput(p.id);
+        if (inp.limitMw !== "" && !Number.isNaN(parseFloat(inp.limitMw))) {
+          limitEnteredCount++;
+          totalLimitMw += parseFloat(inp.limitMw);
+        }
+
+        if (isLimitExceeded(p.id)) {
+          exceedCount++;
+        }
+
+        if (inp.stoppable === "O") stopOCount++;
+        if (inp.stoppable === "X") stopXCount++;
       });
 
-      document.getElementById('summaryBar').innerHTML = `
+      document.getElementById("summaryBar").innerHTML = `
         <div class="summary-card">
-          <div class="summary-label">전체 모니터링 개소</div>
-          <div class="summary-val">${items.length}개소</div>
+          <div class="summary-label">출력제어 대상 발전소</div>
+          <div class="summary-val">${PLANTS.length}개소</div>
+          <div class="summary-sub">설비용량 합계: <strong>${fmtMw(totalCapMw, 2)} MW</strong></div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">정상 검침 개소</div>
-          <div class="summary-val" style="color: var(--ok-text);">${okCount}개소</div>
+          <div class="summary-label">현재 계량데이터 합계 (MW)</div>
+          <div class="summary-val" style="color: var(--accent);">
+            ${hasCrawledMeters ? `${fmtMw(totalMeterMw, 3)} MW` : "미조회"}
+          </div>
+          <div class="summary-sub">
+            ${hasCrawledMeters ? `정상 조회: ${validMeterCount} / ${PLANTS.length}개소` : "[계량데이터 새로고침] 클릭 시 조회"}
+          </div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">실패 / 미수신 개소</div>
-          <div class="summary-val" style="color: var(--err-text);">${errCount}개소</div>
+          <div class="summary-label">제어지시값 입력 현황</div>
+          <div class="summary-val">${limitEnteredCount}개소</div>
+          <div class="summary-sub">지시값 합계: <strong>${fmtMw(totalLimitMw, 2)} MW</strong></div>
+        </div>
+        <div class="summary-card ${exceedCount > 0 ? "danger-card" : ""}">
+          <div class="summary-label">제어지시 초과 (계량 &gt; 제어지시)</div>
+          <div class="summary-val" style="color: ${exceedCount > 0 ? "var(--err-text)" : "var(--ok-text)"};">
+            ${exceedCount}개소
+          </div>
+          <div class="summary-sub">
+            ${exceedCount > 0 ? "🚨 제어지시값을 초과한 발전소가 있습니다!" : "초과 발전소 없음"}
+          </div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">순방향 발전실적 합계 (Wh × 12)</div>
-          <div class="summary-val">${fmt(totalWhTimes12)}</div>
+          <div class="summary-label">정지가능여부 (O / X)</div>
+          <div class="summary-val">
+            <span style="color: var(--ok-text);">O ${stopOCount}</span>
+            <span style="color: var(--muted); font-size: 0.95rem;"> / </span>
+            <span style="color: var(--err-text);">X ${stopXCount}</span>
+          </div>
+          <div class="summary-sub">미선택: ${PLANTS.length - stopOCount - stopXCount}개소</div>
         </div>
       `;
+    }
 
-      const container = document.getElementById('gridContainer');
-      container.innerHTML = GROUPS.map(groupName => {
-        const groupItems = items.filter(x => x.group === groupName);
-        const rowsHtml = groupItems.map(item => {
-          const isOk = item.flag === '정상';
-          return `
-            <tr>
-              <td><span class="meter-name">${item.name}</span></td>
-              <td class="center"><strong>${item.time || '-'}</strong></td>
-              <td class="num">
-                <span class="${item.whTimes12 && item.whTimes12 > 0 ? 'val-highlight' : 'val-zero'}">${fmt(item.whTimes12)}</span>
-              </td>
-              <td class="center">
-                <span class="badge ${isOk ? 'badge-ok' : 'badge-err'}">${item.flag}</span>
-              </td>
-            </tr>
-          `;
-        }).join('');
+    function filterPlants(list) {
+      return list.filter(p => {
+        if (searchKeyword) {
+          const hitName = p.name.toLowerCase().includes(searchKeyword);
+          const hitCode = p.pgCode.toLowerCase().includes(searchKeyword);
+          const hitRegion = p.region.toLowerCase().includes(searchKeyword);
+          if (!hitName && !hitCode && !hitRegion) return false;
+        }
+        const inp = getPlantInput(p.id);
+        if (currentFilterMode === "exceed" && !isLimitExceeded(p.id)) return false;
+        if (currentFilterMode === "stopO" && inp.stoppable !== "O") return false;
+        if (currentFilterMode === "stopX" && inp.stoppable !== "X") return false;
+        return true;
+      });
+    }
+
+    function buildTableRowsHtml(plants, showRegionBadge) {
+      if (plants.length === 0) {
+        return `
+          <tr>
+            <td colspan="5" class="center" style="padding: 28px; color: var(--muted);">
+              조건에 해당하는 발전소가 없습니다.
+            </td>
+          </tr>
+        `;
+      }
+
+      return plants.map(p => {
+        const m = meterDataById[p.id];
+        const inp = getPlantInput(p.id);
+        const exceeded = isLimitExceeded(p.id);
+
+        const hasMeterVal = m && m.meterMw !== null && !Number.isNaN(m.meterMw);
+        const meterText = hasMeterVal
+          ? `${fmtMw(m.meterMw, 3)} MW`
+          : (hasCrawledMeters ? "수신실패" : "미조회");
+
+        const diff = exceeded && hasMeterVal
+          ? m.meterMw - parseFloat(inp.limitMw)
+          : 0;
+
+        return `
+          <tr id="row-${p.id}" class="${exceeded ? "row-exceeded" : ""}">
+            <td>
+              <div class="plant-name-wrap">
+                ${showRegionBadge ? `<span class="region-tag">${p.region.replace("권역", "")}</span>` : ""}
+                <span class="plant-name">${p.name}</span>
+                <span class="pg-code">${p.pgCode}</span>
+              </div>
+            </td>
+            <td class="num">
+              <span class="cap-val">${fmtMw(p.capacityMw, 2)}</span>
+            </td>
+            <td class="num">
+              <div class="meter-cell">
+                <span
+                  id="meter-mw-${p.id}"
+                  class="meter-mw ${!hasMeterVal ? "unloaded" : ""} ${exceeded ? "exceeded" : ""}"
+                >${meterText}</span>
+                <div class="meter-meta">
+                  <span id="exceed-badge-${p.id}">
+                    ${exceeded ? `<span class="exceed-tag">초과 +${fmtMw(diff, 3)} MW</span>` : ""}
+                  </span>
+                  ${m ? `<span>${m.time !== "-" ? `${m.time} 기준` : m.flag}</span>` : ""}
+                </div>
+              </div>
+            </td>
+            <td class="num">
+              <div class="limit-input-wrap">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  id="limit-input-${p.id}"
+                  class="limit-input ${inp.limitMw !== "" ? "has-val" : ""}"
+                  placeholder="입력"
+                  value="${inp.limitMw}"
+                  oninput="handleLimitChange('${p.id}', this.value)"
+                />
+              </div>
+            </td>
+            <td class="center">
+              <div class="ox-group">
+                <button
+                  type="button"
+                  class="ox-btn ${inp.stoppable === "O" ? "active-o" : ""}"
+                  onclick="handleStoppableSelect('${p.id}', 'O')"
+                  title="정지 가능 (O)"
+                >O</button>
+                <button
+                  type="button"
+                  class="ox-btn ${inp.stoppable === "X" ? "active-x" : ""}"
+                  onclick="handleStoppableSelect('${p.id}', 'X')"
+                  title="정지 불가 (X)"
+                >X</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderGrid() {
+      const container = document.getElementById("gridContainer");
+
+      if (currentViewMode === "all") {
+        container.classList.add("single-view");
+        const filtered = filterPlants(PLANTS);
+        const capSum = filtered.reduce((acc, p) => acc + p.capacityMw, 0);
+        const meterSum = filtered.reduce((acc, p) => {
+          const m = meterDataById[p.id];
+          return acc + (m && m.meterMw ? m.meterMw : 0);
+        }, 0);
+
+        container.innerHTML = `
+          <div class="group-card">
+            <div class="group-header">
+              <span class="group-title">전체 출력제어 대상 발전소 통합 현황</span>
+              <div class="group-stats">
+                <span>표시: <strong>${filtered.length}개소</strong></span>
+                <span>설비용량 합계: <strong>${fmtMw(capSum, 2)} MW</strong></span>
+                ${hasCrawledMeters ? `<span>계량 합계: <strong>${fmtMw(meterSum, 3)} MW</strong></span>` : ""}
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>발전소명</th>
+                    <th class="num">설비용량</th>
+                    <th class="num">계량데이터</th>
+                    <th class="num">제어지시값</th>
+                    <th class="center">정지가능여부</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${buildTableRowsHtml(filtered, true)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.classList.remove("single-view");
+      container.innerHTML = REGIONS.map(regionName => {
+        const regionPlants = filterPlants(PLANTS.filter(p => p.region === regionName));
+        const capSum = regionPlants.reduce((acc, p) => acc + p.capacityMw, 0);
+        const meterSum = regionPlants.reduce((acc, p) => {
+          const m = meterDataById[p.id];
+          return acc + (m && m.meterMw ? m.meterMw : 0);
+        }, 0);
 
         return `
           <div class="group-card">
             <div class="group-header">
-              <span class="group-title">${groupName}</span>
-              <span class="group-count">${groupItems.length}개 발전기</span>
+              <span class="group-title">${regionName}</span>
+              <div class="group-stats">
+                <span><strong>${regionPlants.length}개소</strong></span>
+                <span>설비: <strong>${fmtMw(capSum, 2)} MW</strong></span>
+                ${hasCrawledMeters ? `<span>계량: <strong>${fmtMw(meterSum, 3)} MW</strong></span>` : ""}
+              </div>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>발전기</th>
-                  <th class="center">시간</th>
-                  <th class="num">순방향 발전실적</th>
-                  <th class="center">상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>발전소명</th>
+                    <th class="num">설비용량</th>
+                    <th class="num">계량데이터</th>
+                    <th class="num">제어지시값</th>
+                    <th class="center">정지가능여부</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${buildTableRowsHtml(regionPlants, false)}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
-      }).join('');
+      }).join("");
     }
 
+    function renderAll() {
+      renderSummaryBar();
+      renderGrid();
+    }
+
+    // 초기 인증 확인 및 KPX 출력제어 전망 3시간 주기 자동 감지 시작
     checkAuth();
+    setInterval(() => {
+      if (localStorage.getItem(STORAGE_KEY_AUTH) === EXPECTED_HASH) {
+        checkKpxNoticeNow(false);
+      }
+    }, KPX_POLL_INTERVAL_MS);
   </script>
 </body>
 </html>
