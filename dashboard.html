@@ -954,8 +954,19 @@
     }
 
     @media (max-width: 768px) {
-      body { padding: 6px; }
-      .app-container { width: 100%; max-width: 100%; }
+      html, body {
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      body { padding: 6px !important; }
+      .app-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+      }
       .login-card { padding: 26px 16px; max-width: 95vw; }
       .login-title { font-size: clamp(0.95rem, 4.8vw, 1.22rem); white-space: nowrap; }
       .header { padding: 12px; gap: 10px; margin-bottom: 10px; }
@@ -964,8 +975,8 @@
       .right-panel { width: auto; gap: 8px; }
       .logout-btn { padding: 8px 10px; font-size: 0.75rem; }
 
-      .kpx-banner { padding: 12px; gap: 10px; margin-bottom: 12px; }
-      .kpx-left { min-width: 100%; }
+      .kpx-banner { padding: 12px; gap: 10px; margin-bottom: 12px; width: 100% !important; box-sizing: border-box !important; }
+      .kpx-left { min-width: 0 !important; width: 100% !important; }
       .kpx-post-title { font-size: 0.88rem; line-height: 1.35; }
       .kpx-schedule-chips { display: flex; gap: 6px; width: 100%; }
       .kpx-chip { padding: 5px 8px; font-size: 0.76rem; }
@@ -975,136 +986,191 @@
       .kpx-actions { width: 100%; }
       .kpx-actions .btn-sm { flex: 1; justify-content: center; padding: 6px 10px; font-size: 0.75rem; }
 
-      .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
-      .summary-card { padding: 9px 10px; border-radius: 9px; }
+      .summary-bar { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; margin-bottom: 12px; width: 100% !important; box-sizing: border-box !important; }
+      .summary-card { padding: 9px 10px; border-radius: 9px; min-width: 0 !important; box-sizing: border-box !important; }
       .summary-label { font-size: 0.68rem; margin-bottom: 2px; }
       .summary-val { font-size: 1.02rem; }
       .summary-sub { font-size: 0.66rem; }
 
-      /* 권역 선택 메뉴와 새로고침 버튼이 모바일에서 무조건 한 줄로 배치 */
+      /* [핵심] 권역 선택 메뉴와 새로고침 버튼이 모바일에서 무조건 한 줄로 완벽 배치 */
       .toolbar {
-        display: flex;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 8px;
-        gap: 6px;
-        margin-bottom: 12px;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 6px 6px !important;
+        gap: 4px !important;
+        margin-bottom: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
       }
       .region-filter-group {
-        display: inline-flex;
-        flex: 1;
-        align-items: center;
-        gap: 3px;
-        padding: 4px 6px;
-        min-width: 0;
-        justify-content: space-around;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 3px !important;
+        padding: 4px 5px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        justify-content: space-between !important;
+        box-sizing: border-box !important;
       }
       .region-filter-title {
-        display: none; /* 모바일에서 타이틀 숨겨 공간 확보 */
+        display: none !important; /* 모바일에서 타이틀 숨겨 한 줄 공간 확보 */
       }
       .region-check-item {
-        padding: 2px 3px;
-        gap: 3px;
-        flex-shrink: 0;
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 2px 2px !important;
+        gap: 2px !important;
+        flex-shrink: 0 !important;
       }
       .region-check-box {
-        width: 15px;
-        height: 15px;
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0 !important;
       }
       .region-check-box::before {
-        width: 8px;
-        height: 8px;
+        width: 8px !important;
+        height: 8px !important;
       }
       .region-check-label-text {
-        font-size: 0.74rem;
-        white-space: nowrap;
+        font-size: 0.72rem !important;
+        white-space: nowrap !important;
+      }
+      .pc-only {
+        display: none !important; /* 모바일에서 '계량데이터' 문구 숨김 -> '새로고침'만 표시 */
       }
       .refresh-btn {
-        flex-shrink: 0;
-        padding: 6px 10px;
-        font-size: 0.75rem;
-        gap: 4px;
-        border-radius: 7px;
-        white-space: nowrap;
+        flex-shrink: 0 !important;
+        padding: 6px 8px !important;
+        font-size: 0.74rem !important;
+        gap: 3px !important;
+        border-radius: 7px !important;
+        white-space: nowrap !important;
+        height: 32px !important;
       }
 
-      .grid-container { grid-template-columns: 1fr; gap: 10px; }
+      .grid-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .group-card {
+        width: 100% !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
       .group-header { padding: 9px 10px; }
       .group-title { font-size: 0.9rem; }
       .group-stats { font-size: 0.7rem; gap: 6px; }
 
-      /* 가로 스크롤바 없이 한 화면에 100% 쏙 들어가는 테이블 */
+      /* [핵심] 가로 스크롤바 완전 제거: 6개 열이 스마트폰 화면 100%에 고정 분할 */
       .table-wrap {
-        width: 100%;
-        overflow-x: hidden;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       table {
-        width: 100%;
-        min-width: 0;
-        table-layout: fixed;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
       }
       th, td {
-        padding: 6px 2px;
-        font-size: 0.72rem;
-        overflow: hidden;
+        padding: 6px 1px !important;
+        font-size: 0.72rem !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        box-sizing: border-box !important;
       }
       th {
-        font-size: 0.67rem;
-        letter-spacing: -0.04em;
-        padding: 6px 2px;
+        font-size: 0.66rem !important;
+        letter-spacing: -0.05em !important;
+        padding: 6px 1px !important;
+        text-align: center !important;
+      }
+      th.num, td.num {
+        text-align: right !important;
+        padding-right: 2px !important;
+      }
+      th.center, td.center {
+        text-align: center !important;
       }
       .th-unit {
-        display: none;
+        display: none !important;
       }
 
       /* 6개 열 가로폭 비율 고정 (합계 100%) */
-      th:nth-child(1), td:nth-child(1) { width: 28%; } /* 발전소명 */
-      th:nth-child(2), td:nth-child(2) { width: 12%; } /* 설비 */
-      th:nth-child(3), td:nth-child(3) { width: 16%; } /* 계량 */
-      th:nth-child(4), td:nth-child(4) { width: 12%; } /* 시간 */
-      th:nth-child(5), td:nth-child(5) { width: 16%; } /* 지시값 */
-      th:nth-child(6), td:nth-child(6) { width: 16%; } /* 정지 */
+      th:nth-child(1), td:nth-child(1) { width: 27% !important; text-align: left !important; padding-left: 4px !important; } /* 발전소명 */
+      th:nth-child(2), td:nth-child(2) { width: 12% !important; } /* 설비 */
+      th:nth-child(3), td:nth-child(3) { width: 16% !important; } /* 계량 */
+      th:nth-child(4), td:nth-child(4) { width: 13% !important; } /* 시간 */
+      th:nth-child(5), td:nth-child(5) { width: 16% !important; } /* 지시값 */
+      th:nth-child(6), td:nth-child(6) { width: 16% !important; } /* 정지 */
 
       .plant-name-wrap { gap: 2px; }
       .plant-name {
-        font-size: 0.72rem;
+        font-size: 0.71rem !important;
         line-height: 1.25;
-        word-break: keep-all;
-        overflow-wrap: break-word;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
       }
       .cap-val {
-        font-size: 0.72rem;
+        font-size: 0.71rem !important;
       }
       .meter-mw {
-        font-size: 0.76rem;
+        font-size: 0.75rem !important;
       }
       .mw-unit {
-        display: none; /* 모바일에서 ' MW' 텍스트 숨김으로 폭 절약 */
+        display: none !important; /* 모바일에서 ' MW' 텍스트 숨김으로 폭 절약 */
       }
       .meter-time {
-        font-size: 0.68rem;
+        font-size: 0.67rem !important;
       }
       .limit-input-wrap {
-        width: 100%;
-        justify-content: flex-end;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
       }
       .limit-input {
-        width: 42px;
-        padding: 3px 2px;
-        font-size: 0.75rem;
-        height: 24px;
-        border-radius: 5px;
+        width: 38px !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 2px 2px !important;
+        font-size: 0.72rem !important;
+        height: 22px !important;
+        border-radius: 4px !important;
+        text-align: right !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: textfield !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
       }
       .ox-group {
-        gap: 1px;
-        padding: 1px;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 1px !important;
+        padding: 1px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
       }
       .ox-btn {
-        width: 20px;
-        height: 20px;
-        font-size: 0.66rem;
-        border-radius: 4px;
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 0.65rem !important;
+        padding: 0 !important;
+        line-height: 18px !important;
+        border-radius: 3px !important;
+        flex-shrink: 0 !important;
       }
       .toast { left: 12px; right: 12px; bottom: 14px; text-align: center; font-size: 0.8rem; padding: 10px 14px; }
     }
@@ -1230,7 +1296,7 @@
 
       <button class="refresh-btn" id="refreshMeterBtn" onclick="crawlMetersNow()">
         <span id="refreshMeterIcon">↻</span>
-        <span id="refreshMeterLabel">계량데이터 새로고침</span>
+        <span id="refreshMeterLabel"><span class="pc-only">계량데이터 </span>새로고침</span>
       </button>
     </div>
 
@@ -1650,7 +1716,7 @@
 
       btn.disabled = true;
       icon.classList.add("spin");
-      label.textContent = "계량데이터 크롤링 중...";
+      label.innerHTML = `<span class="pc-only">계량데이터 </span>크롤링 중...`;
 
       try {
         // 1순위: 로컬 PC 서버(localhost:3010) 또는 Vercel API(/api/refresh?type=meters) 직접 호출
@@ -1709,7 +1775,7 @@
       } finally {
         btn.disabled = false;
         icon.classList.remove("spin");
-        label.textContent = "계량데이터 새로고침";
+        label.innerHTML = `<span class="pc-only">계량데이터 </span>새로고침`;
       }
     }
 
