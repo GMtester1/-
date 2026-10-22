@@ -2,7 +2,24 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta id="viewportMeta" name="viewport" content="width=1280, initial-scale=0.32, minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes" />
+  <script>
+    (function() {
+      try {
+        var mode = localStorage.getItem("curtailment_viewport_mode") || "desktop";
+        var vp = document.getElementById("viewportMeta");
+        if (vp) {
+          if (mode === "mobile") {
+            vp.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes");
+          } else {
+            var screenW = Math.min(window.screen.width, window.screen.height) || 390;
+            var scale = Math.min(1, screenW / 1280).toFixed(3);
+            vp.setAttribute("content", "width=1280, initial-scale=" + scale + ", minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes");
+          }
+        }
+      } catch (_) {}
+    })();
+  </script>
   <title>K-water 전력거래소 출력제어 대응 대시보드</title>
   <style>
     :root {
@@ -152,6 +169,26 @@
     .logout-btn:hover {
       color: var(--text);
       border-color: var(--muted);
+    }
+
+    .mode-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mode-toggle-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     /* 상단 헤더 */
@@ -963,6 +1000,7 @@
       .timestamp-box { flex: 1; text-align: left; padding: 8px 12px; }
       .timestamp-value { font-size: 0.98rem; }
       .refresh-btn { width: 100%; padding: 12px 16px; font-size: 0.9rem; order: 3; }
+      .mode-toggle-btn { padding: 10px 12px; font-size: 0.78rem; }
       .logout-btn { padding: 10px 12px; font-size: 0.78rem; }
 
       .kpx-banner { padding: 14px; gap: 12px; }
@@ -1031,6 +1069,17 @@
       </div>
       <div class="login-error" id="loginError">아이디 또는 비밀번호가 일치하지 않습니다.</div>
       <button type="submit" class="login-btn">로그인</button>
+      <div style="margin-top: 12px; text-align: center;">
+        <button
+          type="button"
+          class="mode-toggle-btn"
+          style="padding: 8px 14px; font-size: 0.8rem; border-radius: 8px; width: 100%; justify-content: center;"
+          onclick="toggleViewportMode()"
+        >
+          <span class="viewportToggleIconSync">📱</span>
+          <span class="viewportToggleTextSync">모바일 화면으로 전환</span>
+        </button>
+      </div>
     </form>
   </div>
 
@@ -1051,6 +1100,10 @@
         <button class="refresh-btn" id="refreshMeterBtn" onclick="crawlMetersNow()">
           <span id="refreshMeterIcon">↻</span>
           <span id="refreshMeterLabel">계량데이터 새로고침</span>
+        </button>
+        <button type="button" class="mode-toggle-btn" id="viewportToggleBtn" onclick="toggleViewportMode()" title="화면 모드 전환 (PC 데스크탑 ↔ 모바일)">
+          <span id="viewportToggleIcon">📱</span>
+          <span id="viewportToggleText">모바일 화면</span>
         </button>
         <button type="button" class="logout-btn" onclick="handleLogout()">로그아웃</button>
       </div>
@@ -2135,6 +2188,51 @@
       renderSummaryBar();
       renderGrid();
     }
+
+    /**
+     * 뷰포트(데스크탑/모바일 화면 모드) 제어
+     * 디폴트: desktop (모바일 기기에서도 PC 데스크탑 레이아웃으로 시작)
+     */
+    function applyViewportMode(mode, showNotice = false) {
+      const vp = document.getElementById("viewportMeta");
+      const icon = document.getElementById("viewportToggleIcon");
+      const text = document.getElementById("viewportToggleText");
+      const iconSyncs = document.querySelectorAll(".viewportToggleIconSync");
+      const textSyncs = document.querySelectorAll(".viewportToggleTextSync");
+
+      localStorage.setItem("curtailment_viewport_mode", mode);
+
+      if (mode === "mobile") {
+        if (vp) {
+          vp.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes");
+        }
+        if (icon) icon.textContent = "🖥️";
+        if (text) text.textContent = "PC 화면";
+        iconSyncs.forEach(el => el.textContent = "🖥️");
+        textSyncs.forEach(el => el.textContent = "PC 화면으로 전환");
+        if (showNotice) showToast("모바일 최적화 화면으로 전환되었습니다.");
+      } else {
+        const screenW = Math.min(window.screen.width, window.screen.height) || 390;
+        let scale = Math.min(1, screenW / 1280).toFixed(3);
+        if (vp) {
+          vp.setAttribute("content", `width=1280, initial-scale=${scale}, minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes`);
+        }
+        if (icon) icon.textContent = "📱";
+        if (text) text.textContent = "모바일 화면";
+        iconSyncs.forEach(el => el.textContent = "📱");
+        textSyncs.forEach(el => el.textContent = "모바일 화면으로 전환");
+        if (showNotice) showToast("PC 데스크탑 화면으로 전환되었습니다.");
+      }
+    }
+
+    function toggleViewportMode() {
+      const current = localStorage.getItem("curtailment_viewport_mode") || "desktop";
+      const next = current === "desktop" ? "mobile" : "desktop";
+      applyViewportMode(next, true);
+    }
+
+    // 뷰포트 모드 버튼 UI 초기 동기화 (기본: desktop)
+    applyViewportMode(localStorage.getItem("curtailment_viewport_mode") || "desktop", false);
 
     // 초기 인증 확인 및 KPX 출력제어 전망 3시간 주기 자동 감지 시작
     checkAuth();
