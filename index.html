@@ -898,16 +898,60 @@
     }
 
     @media (max-width: 768px) {
-      body { padding: 12px; }
-      .header { padding: 16px; }
-      .right-panel { width: 100%; justify-content: space-between; }
-      .timestamp-box { flex: 1; text-align: left; }
-      .refresh-btn { width: 100%; }
-      .grid-container { grid-template-columns: 1fr; }
-      .kpx-right { align-items: flex-start; width: 100%; }
-      .kpx-meta { text-align: left; }
-      th, td { padding: 8px 8px; font-size: 0.82rem; }
-      .limit-input { width: 76px; }
+      body { padding: 10px; }
+      .header { padding: 14px; gap: 12px; }
+      .title-area h1 { font-size: 1.18rem; }
+      .subtitle { font-size: 0.78rem; line-height: 1.45; }
+      .right-panel { width: 100%; justify-content: space-between; gap: 8px; }
+      .timestamp-box { flex: 1; text-align: left; padding: 8px 12px; }
+      .timestamp-value { font-size: 0.98rem; }
+      .refresh-btn { width: 100%; padding: 12px 16px; font-size: 0.9rem; order: 3; }
+      .logout-btn { padding: 10px 12px; font-size: 0.78rem; }
+
+      .kpx-banner { padding: 14px; gap: 12px; }
+      .kpx-left { min-width: 100%; }
+      .kpx-post-title { font-size: 0.95rem; }
+      .kpx-schedule-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+      .kpx-chip { padding: 6px 9px; font-size: 0.8rem; justify-content: space-between; }
+      .kpx-chip.highlight-date .kpx-chip-val,
+      .kpx-chip.highlight-time .kpx-chip-val { font-size: 0.84rem; }
+      .kpx-right { align-items: flex-start; width: 100%; border-top: 1px solid var(--border); padding-top: 10px; }
+      .kpx-meta { text-align: left; font-size: 0.74rem; }
+      .kpx-actions { width: 100%; }
+      .kpx-actions .btn-sm { flex: 1; justify-content: center; }
+
+      .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+      .summary-card { padding: 11px 12px; }
+      .summary-label { font-size: 0.72rem; }
+      .summary-val { font-size: 1.08rem; }
+      .summary-sub { font-size: 0.7rem; }
+
+      .toolbar { padding: 10px 12px; gap: 10px; }
+      .toolbar-left, .toolbar-right { width: 100%; gap: 8px; }
+      .tab-group { width: 100%; display: flex; }
+      .tab-btn { flex: 1; text-align: center; padding: 8px 6px; font-size: 0.8rem; }
+      .filter-group { width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .filter-btn { text-align: center; padding: 7px 6px; font-size: 0.76rem; }
+      .search-input { flex: 1; width: auto; font-size: 16px; padding: 7px 10px; }
+
+      .grid-container { grid-template-columns: 1fr; gap: 12px; }
+      .group-header { padding: 10px 12px; }
+      .group-title { font-size: 0.95rem; }
+      .group-stats { font-size: 0.73rem; gap: 8px; }
+
+      th, td { padding: 7px 5px; font-size: 0.76rem; }
+      th { font-size: 0.7rem; letter-spacing: -0.02em; }
+      .plant-name-wrap { gap: 4px; }
+      .plant-name { font-size: 0.78rem; }
+      .pg-code { font-size: 0.64rem; padding: 1px 4px; }
+      .region-tag { font-size: 0.64rem; padding: 1px 4px; }
+      .meter-mw { font-size: 0.84rem; }
+      .meter-meta { font-size: 0.64rem; }
+      .exceed-tag { font-size: 0.62rem; padding: 1px 4px; }
+      .limit-input { width: 58px; padding: 5px 4px; font-size: 16px; }
+      .ox-group { padding: 2px; gap: 2px; }
+      .ox-btn { width: 24px; height: 22px; font-size: 0.72rem; }
+      .toast { left: 12px; right: 12px; bottom: 14px; text-align: center; font-size: 0.82rem; }
     }
   </style>
 </head>
