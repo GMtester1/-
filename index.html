@@ -954,56 +954,159 @@
     }
 
     @media (max-width: 768px) {
-      body { padding: 10px; }
+      body { padding: 6px; }
+      .app-container { width: 100%; max-width: 100%; }
       .login-card { padding: 26px 16px; max-width: 95vw; }
       .login-title { font-size: clamp(0.95rem, 4.8vw, 1.22rem); white-space: nowrap; }
-      .header { padding: 14px; gap: 12px; }
-      .title-area h1 { font-size: clamp(0.95rem, 4.2vw, 1.18rem); white-space: nowrap; }
-      .subtitle { font-size: 0.78rem; line-height: 1.45; }
+      .header { padding: 12px; gap: 10px; margin-bottom: 10px; }
+      .title-area h1 { font-size: clamp(0.92rem, 4.1vw, 1.15rem); white-space: nowrap; }
+      .subtitle { font-size: 0.75rem; line-height: 1.4; }
       .right-panel { width: auto; gap: 8px; }
-      .logout-btn { padding: 10px 12px; font-size: 0.78rem; }
+      .logout-btn { padding: 8px 10px; font-size: 0.75rem; }
 
-      .kpx-banner { padding: 14px; gap: 12px; }
+      .kpx-banner { padding: 12px; gap: 10px; margin-bottom: 12px; }
       .kpx-left { min-width: 100%; }
-      .kpx-post-title { font-size: 0.95rem; }
+      .kpx-post-title { font-size: 0.88rem; line-height: 1.35; }
       .kpx-schedule-chips { display: flex; gap: 6px; width: 100%; }
-      .kpx-chip { padding: 6px 9px; font-size: 0.8rem; }
-      .kpx-chip.highlight-time .kpx-chip-val { font-size: 0.84rem; }
-      .kpx-right { align-items: flex-start; width: 100%; border-top: 1px solid var(--border); padding-top: 10px; }
-      .kpx-meta { text-align: left; font-size: 0.74rem; }
+      .kpx-chip { padding: 5px 8px; font-size: 0.76rem; }
+      .kpx-chip.highlight-time .kpx-chip-val { font-size: 0.8rem; }
+      .kpx-right { align-items: flex-start; width: 100%; border-top: 1px solid var(--border); padding-top: 8px; }
+      .kpx-meta { text-align: left; font-size: 0.72rem; }
       .kpx-actions { width: 100%; }
-      .kpx-actions .btn-sm { flex: 1; justify-content: center; }
+      .kpx-actions .btn-sm { flex: 1; justify-content: center; padding: 6px 10px; font-size: 0.75rem; }
 
-      .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
-      .summary-card { padding: 11px 12px; }
-      .summary-label { font-size: 0.72rem; }
-      .summary-val { font-size: 1.08rem; }
-      .summary-sub { font-size: 0.7rem; }
+      .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
+      .summary-card { padding: 9px 10px; border-radius: 9px; }
+      .summary-label { font-size: 0.68rem; margin-bottom: 2px; }
+      .summary-val { font-size: 1.02rem; }
+      .summary-sub { font-size: 0.66rem; }
 
-      .toolbar { padding: 8px 10px; gap: 8px; justify-content: space-between; align-items: center; }
-      .region-filter-group { flex: 1; padding: 6px 8px; gap: 4px; justify-content: space-between; min-width: 200px; }
-      .region-check-item { padding: 3px 5px; gap: 4px; }
-      .region-check-box { width: 17px; height: 17px; }
-      .region-check-label-text { font-size: 0.8rem; }
-      .refresh-btn { width: auto; padding: 8px 12px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; }
+      /* 권역 선택 메뉴와 새로고침 버튼이 모바일에서 무조건 한 줄로 배치 */
+      .toolbar {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 8px;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .region-filter-group {
+        display: inline-flex;
+        flex: 1;
+        align-items: center;
+        gap: 3px;
+        padding: 4px 6px;
+        min-width: 0;
+        justify-content: space-around;
+      }
+      .region-filter-title {
+        display: none; /* 모바일에서 타이틀 숨겨 공간 확보 */
+      }
+      .region-check-item {
+        padding: 2px 3px;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+      .region-check-box {
+        width: 15px;
+        height: 15px;
+      }
+      .region-check-box::before {
+        width: 8px;
+        height: 8px;
+      }
+      .region-check-label-text {
+        font-size: 0.74rem;
+        white-space: nowrap;
+      }
+      .refresh-btn {
+        flex-shrink: 0;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        gap: 4px;
+        border-radius: 7px;
+        white-space: nowrap;
+      }
 
-      .grid-container { grid-template-columns: 1fr; gap: 12px; }
-      .group-header { padding: 10px 12px; }
-      .group-title { font-size: 0.95rem; }
-      .group-stats { font-size: 0.73rem; gap: 8px; }
+      .grid-container { grid-template-columns: 1fr; gap: 10px; }
+      .group-header { padding: 9px 10px; }
+      .group-title { font-size: 0.9rem; }
+      .group-stats { font-size: 0.7rem; gap: 6px; }
 
-      table { min-width: 480px; }
-      th, td { padding: 8px 6px; font-size: 0.78rem; }
-      th { font-size: 0.72rem; letter-spacing: -0.02em; }
-      .plant-name-wrap { gap: 4px; }
-      .plant-name { font-size: 0.82rem; }
-      .region-tag { font-size: 0.64rem; padding: 1px 4px; }
-      .meter-mw { font-size: 0.86rem; }
-      .meter-time { font-size: 0.76rem; }
-      .limit-input { width: 56px; padding: 5px 4px; font-size: 16px; }
-      .ox-group { padding: 2px; gap: 2px; }
-      .ox-btn { width: 26px; height: 24px; font-size: 0.74rem; }
-      .toast { left: 12px; right: 12px; bottom: 14px; text-align: center; font-size: 0.82rem; }
+      /* 가로 스크롤바 없이 한 화면에 100% 쏙 들어가는 테이블 */
+      .table-wrap {
+        width: 100%;
+        overflow-x: hidden;
+      }
+      table {
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+      }
+      th, td {
+        padding: 6px 2px;
+        font-size: 0.72rem;
+        overflow: hidden;
+      }
+      th {
+        font-size: 0.67rem;
+        letter-spacing: -0.04em;
+        padding: 6px 2px;
+      }
+      .th-unit {
+        display: none;
+      }
+
+      /* 6개 열 가로폭 비율 고정 (합계 100%) */
+      th:nth-child(1), td:nth-child(1) { width: 28%; } /* 발전소명 */
+      th:nth-child(2), td:nth-child(2) { width: 12%; } /* 설비 */
+      th:nth-child(3), td:nth-child(3) { width: 16%; } /* 계량 */
+      th:nth-child(4), td:nth-child(4) { width: 12%; } /* 시간 */
+      th:nth-child(5), td:nth-child(5) { width: 16%; } /* 지시값 */
+      th:nth-child(6), td:nth-child(6) { width: 16%; } /* 정지 */
+
+      .plant-name-wrap { gap: 2px; }
+      .plant-name {
+        font-size: 0.72rem;
+        line-height: 1.25;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+      }
+      .cap-val {
+        font-size: 0.72rem;
+      }
+      .meter-mw {
+        font-size: 0.76rem;
+      }
+      .mw-unit {
+        display: none; /* 모바일에서 ' MW' 텍스트 숨김으로 폭 절약 */
+      }
+      .meter-time {
+        font-size: 0.68rem;
+      }
+      .limit-input-wrap {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .limit-input {
+        width: 42px;
+        padding: 3px 2px;
+        font-size: 0.75rem;
+        height: 24px;
+        border-radius: 5px;
+      }
+      .ox-group {
+        gap: 1px;
+        padding: 1px;
+      }
+      .ox-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.66rem;
+        border-radius: 4px;
+      }
+      .toast { left: 12px; right: 12px; bottom: 14px; text-align: center; font-size: 0.8rem; padding: 10px 14px; }
     }
   </style>
 </head>
@@ -1881,7 +1984,7 @@
 
         const hasMeterVal = m && m.meterMw !== null && !Number.isNaN(m.meterMw);
         const meterText = hasMeterVal
-          ? `${fmtMw(m.meterMw, 3)} MW`
+          ? `<span class="mw-val">${fmtMw(m.meterMw, 3)}</span><span class="mw-unit"> MW</span>`
           : (hasCrawledMeters ? "수신실패" : "미조회");
 
         const meterTimeText = hasMeterVal && m && m.time && m.time !== "-" ? m.time : "-";
@@ -1980,11 +2083,11 @@
                 <thead>
                   <tr>
                     <th>발전소명</th>
-                    <th class="num">설비용량</th>
-                    <th class="num">계량데이터</th>
-                    <th class="center">계량시간</th>
-                    <th class="num">제어지시값</th>
-                    <th class="center">정지가능여부</th>
+                    <th class="num">설비</th>
+                    <th class="num">계량<span class="th-unit">(MW)</span></th>
+                    <th class="center">시간</th>
+                    <th class="num">지시값</th>
+                    <th class="center">정지</th>
                   </tr>
                 </thead>
                 <tbody>
